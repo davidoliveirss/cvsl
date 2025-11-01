@@ -6,6 +6,6 @@ CREATE TABLE animais (
     raca VARCHAR(50),
     data_nascimento DATE,
     sexo CHAR(1),
-    id_cliente INT REFERENCES clientes(id) ON DELETE CASCADE,
+    id_cliente INT REFERENCES clientes(id) NOT NULL ON DELETE CASCADE,
     id_clinica INT REFERENCES clinicas(id) NOT NULL ON DELETE CASCADE
 );

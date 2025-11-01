@@ -1,5 +1,5 @@
 CREATE TABLE consultas (
-    id_consulta SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     data DATE NOT NULL,
     hora TIME NOT NULL,
     motivo TEXT,
