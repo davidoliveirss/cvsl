@@ -1,1 +1,0 @@
-sql code for only one clinic 
