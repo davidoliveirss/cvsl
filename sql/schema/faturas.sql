@@ -3,6 +3,7 @@ CREATE TABLE faturas (
     data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     valor_total DECIMAL(10,2) NOT NULL DEFAULT 0,
     transponder VARCHAR(15) REFERENCES animais(transponder) ON DELETE SET NULL,
+    tipo_pagamento tipo_pagamento_enum NOT NULL DEFAULT 'dinheiro', 
     id_cliente INT NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
     id_clinica INT NOT NULL REFERENCES clinicas(id)
 );
@@ -22,3 +23,5 @@ CREATE TABLE servicos_fatura (
     preco_unitario DECIMAL(10,2) NOT NULL,
     PRIMARY KEY(id_fatura,id_servico)
 );
+
+CREATE TYPE tipo_pagamento_enum AS ENUM ('dinheiro', 'multibanco');

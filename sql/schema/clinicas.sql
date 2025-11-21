@@ -2,5 +2,6 @@ CREATE TABLE clinicas (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cp VARCHAR(8) NOT NULL,
-    nif VARCHAR(9)
+    nif VARCHAR(9),
+    iban varchar(25) NOT NULL
 );
