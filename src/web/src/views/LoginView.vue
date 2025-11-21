@@ -1,18 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar } from 'quasar'; // IMPORTANTE!
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useAuthStore } from '@/stores/auth';
 
-const $q = useQuasar(); // ACEDER AO CONTEXTO DO QUASAR
+const $q = useQuasar();
+const router = useRouter();
+const authStore = useAuthStore();
 
-const tab = ref('login'); // Controle das tabs
-const name = ref('');
-const surename = ref('');
+const tab = ref('login');
+const email = ref('');
 const password = ref('');
-const birth_date = ref('');
-const checkbox = ref(false);
 
-function onRegister() {
-    console.log("Registo")
+async function onLogin() {
+    if (!email.value || !password.value) {
+        $q.notify({
+            type: 'negative',
+            message: 'Preencha email e password'
+        });
+        return;
+    }
+
+    const success = await authStore.login(email.value, password.value);
+
+    if (success) {
+        $q.notify({
+            type: 'positive',
+            message: 'Login efetuado com sucesso!'
+        });
+        router.push('/');
+    } else {
+        $q.notify({
+            type: 'negative',
+            message: authStore.error || 'Email ou password inválidos'
+        });
+    }
 }
 </script>
 
@@ -35,40 +57,41 @@ function onRegister() {
 
             <q-tab-panels v-model="tab" animated>
                 <q-tab-panel name="login" style="color: #357870;">
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="name" label="Email" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-md" v-model="name" label="Password" />
+                    <q-input 
+                        rounded 
+                        outlined 
+                        bg-color="grey-3" 
+                        color="grey-10" 
+                        v-model="email" 
+                        label="Email"
+                        type="email"
+                        @keyup.enter="onLogin"
+                    />
+                    <q-input 
+                        rounded 
+                        outlined 
+                        bg-color="grey-3" 
+                        color="grey-10" 
+                        class="q-mt-md" 
+                        v-model="password" 
+                        label="Password"
+                        type="password"
+                        @keyup.enter="onLogin"
+                    />
                     <div class="q-mt-md q-mr-md" style="text-align: right;">
-                        <q-btn push color="grey-9" label="Login" />
+                        <q-btn 
+                            push 
+                            color="grey-9" 
+                            label="Login" 
+                            @click="onLogin"
+                            :loading="authStore.isLoading"
+                        />
                     </div>
                 </q-tab-panel>
 
                 <q-tab-panel name="register" animated>
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="name" label="Nome" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="surename"
-                        label="Sobrenome" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined  bg-color="grey-3" color="grey-10" v-model="name"
-                        hint="Email escolar ou pessoal" label="Email" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-md" v-model="birth_date"
-                        label="Data nascimento" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-lg" v-model="password"
-                        label="Password" />
-
-                    <div class="q-mt-md q-mr-md" style="text-align: right;">
-                        <q-checkbox v-model="checkbox" color="grey-9">
-                            <template v-slot:default>
-                                <span>
-                                    Eu li e aceito os
-                                    <router-link to="/termos-e-condicoes"
-                                        style="text-decoration: underline; color: #357870;" @click.stop>
-                                        termos de utilização
-                                    </router-link>
-                                </span>
-                            </template>
-                        </q-checkbox>
-                        <q-btn push class="q-ml-md" color="grey-9" @click="onRegister" label="Register" />
+                    <div class="text-center text-grey-7">
+                        <p>Registo disponível apenas para administradores</p>
                     </div>
                 </q-tab-panel>
             </q-tab-panels>
