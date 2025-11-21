@@ -5,5 +5,5 @@ CREATE TABLE produtos (
     preco DECIMAL(10,2) NOT NULL,
     unidades_por_caixa INT NOT NULL,
     quantidade_stock INT NOT NULL DEFAULT 0,
-    id_clinica INT REFERENCES clinicas(id) NOT NULL ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
 );

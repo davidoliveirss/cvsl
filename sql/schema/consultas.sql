@@ -4,7 +4,7 @@ CREATE TABLE consultas (
     hora TIME NOT NULL,
     motivo TEXT,
     observacoes TEXT,
-    id_animal INT REFERENCES animais(id) ON DELETE CASCADE,
+    id_animal INT NOT NULL REFERENCES animais(id) ON DELETE CASCADE,
     id_vet INT REFERENCES veterinarios(id) ON DELETE SET NULL,
-    id_clinica INT REFERENCES clinicas(id) NOT NULL ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
 );
