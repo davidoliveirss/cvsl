@@ -24,4 +24,5 @@ CREATE TABLE servicos_fatura (
     PRIMARY KEY(id_fatura,id_servico)
 );
 
+--mudar 
 CREATE TYPE tipo_pagamento_enum AS ENUM ('dinheiro', 'multibanco');
