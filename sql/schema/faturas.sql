@@ -24,5 +24,13 @@ CREATE TABLE servicos_fatura (
     PRIMARY KEY(id_fatura,id_servico)
 );
 
---mudar 
-CREATE TYPE tipo_pagamento_enum AS ENUM ('dinheiro', 'multibanco');
+CREATE TABLE tipo_pagamento (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE iva (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    taxa DECIMAL(4,2) NOT NULL
+)
