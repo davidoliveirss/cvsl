@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/david/dev/cvsl-main/src/api/api.csproj": {}
+    "/home/david/dev/cvsl/src/api/api.csproj": {}
   },
   "projects": {
-    "/home/david/dev/cvsl-main/src/api/api.csproj": {
+    "/home/david/dev/cvsl/src/api/api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/david/dev/cvsl-main/src/api/api.csproj",
+        "projectUniqueName": "/home/david/dev/cvsl/src/api/api.csproj",
         "projectName": "api",
-        "projectPath": "/home/david/dev/cvsl-main/src/api/api.csproj",
+        "projectPath": "/home/david/dev/cvsl/src/api/api.csproj",
         "packagesPath": "/home/david/.nuget/packages/",
-        "outputPath": "/home/david/dev/cvsl-main/src/api/obj/",
+        "outputPath": "/home/david/dev/cvsl/src/api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/david/.nuget/NuGet/NuGet.Config"
@@ -32,12 +32,21 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.21, )"
@@ -45,6 +54,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             }
           },
           "imports": [
@@ -66,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.121/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.416/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
