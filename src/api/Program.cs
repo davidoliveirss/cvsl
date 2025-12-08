@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using System.Text;
+using api.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configuração Database
+var connectionString = builder.Configuration.GetSection("DB")["ConnectionString"];
+builder.Services.AddDbContext<ClinicaDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Configuração CORS
 builder.Services.AddCors(options =>

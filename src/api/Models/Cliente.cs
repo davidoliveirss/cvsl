@@ -26,5 +26,6 @@ public class Cliente
 
     // Foreign key to Clinicas(id) - required in SQL
     // Use `ClinicaId` to follow common EF conventions.
+    [Column("id_clinica")]
     public int ClinicaId { get; set; }
 }

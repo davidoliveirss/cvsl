@@ -5,6 +5,7 @@ import { authService } from '@/services/authService';
 interface User {
   email: string;
   nome: string;
+  type?: 'clinica' | 'funcionario';
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -14,17 +15,20 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null);
 
   const isAuthenticated = computed(() => !!token.value);
+  const isClinica = computed(() => user.value?.type === 'clinica');
+  const isFuncionario = computed(() => user.value?.type === 'funcionario');
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, userType: 'clinica' | 'funcionario' = 'clinica') {
     isLoading.value = true;
     error.value = null;
 
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(email, password, userType);
       token.value = response.token;
       user.value = {
         email: response.email,
-        nome: response.nome
+        nome: response.nome,
+        type: userType
       };
       return true;
     } catch (err: any) {
@@ -47,6 +51,8 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     error,
     isAuthenticated,
+    isClinica,
+    isFuncionario,
     login,
     logout
   };

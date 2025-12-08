@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5098/api';
+const API_URL = 'http://localhost:5000/api';
 
 interface LoginCredentials {
   email: string;
@@ -11,9 +11,16 @@ interface AuthResponse {
   nome: string;
 }
 
+type UserType = 'clinica' | 'funcionario';
+
 export const authService = {
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
+  async login(email: string, password: string, userType: UserType = 'clinica'): Promise<AuthResponse> {
+    // Escolhe endpoint baseado no tipo de utilizador
+    const endpoint = userType === 'clinica' 
+      ? `${API_URL}/auth/login/clinica`
+      : `${API_URL}/auth/login/funcionario`;
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,10 +35,15 @@ export const authService = {
 
     const data: AuthResponse = await response.json();
     
-    // Guardar token no localStorage
+    // Guardar token e tipo de utilizador no localStorage
     if (data.token) {
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({ email: data.email, nome: data.nome }));
+      localStorage.setItem('userType', userType);
+      localStorage.setItem('user', JSON.stringify({ 
+        email: data.email, 
+        nome: data.nome,
+        type: userType 
+      }));
     }
 
     return data;
@@ -40,10 +52,15 @@ export const authService = {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('userType');
   },
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  },
+
+  getUserType(): UserType | null {
+    return localStorage.getItem('userType') as UserType | null;
   },
 
   getUser() {
@@ -52,7 +69,25 @@ export const authService = {
   },
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    
+    // Verificar se token expirou
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp * 1000; // converter para milliseconds
+      return Date.now() < exp;
+    } catch {
+      return false;
+    }
+  },
+
+  isClinica(): boolean {
+    return this.getUserType() === 'clinica';
+  },
+
+  isFuncionario(): boolean {
+    return this.getUserType() === 'funcionario';
   },
 
   // Função helper para fazer requests autenticadas

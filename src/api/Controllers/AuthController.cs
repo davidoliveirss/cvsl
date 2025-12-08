@@ -4,6 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using api.Models;
+using api.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
@@ -12,77 +14,123 @@ namespace api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _configuration;
+    private readonly ClinicaDbContext _context;
 
-    public AuthController(IConfiguration configuration)
+    public AuthController(IConfiguration configuration, ClinicaDbContext context)
     {
         _configuration = configuration;
+        _context = context;
     }
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel model)
+    [HttpPost("login/clinica")]
+    public async Task<IActionResult> LoginClinica([FromBody] LoginModel model)
     {
-        // TODO: Substituir por validação real com base de dados
-        // Por agora, credenciais de teste
-        var user = ValidateUser(model.Email, model.Password);
+        // MOCKUP DATA - Para testes sem BD
+        if (model.Email == "clinica@teste.pt" && model.Password == "teste123")
+        {
+            var token = GenerateJwtToken(1, "clinica@teste.pt", "Clínica Veterinária Teste", "Clinica");
+            
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                Email = "clinica@teste.pt",
+                Nome = "Clínica Veterinária Teste"
+            });
+        }
+
+        // Verificação real na BD (comentado para testes)
+        /*
+        var clinica = await _context.Clinicas
+            .SingleOrDefaultAsync(c => c.Email == model.Email && c.Password == model.Password);
         
-        if (user == null)
+        if (clinica == null)
         {
             return Unauthorized(new { message = "Email ou password inválidos" });
         }
 
-        var token = GenerateJwtToken(user);
+        var token = GenerateJwtToken(clinica.Id, clinica.Email, clinica.Nome, "Clinica");
         
         return Ok(new AuthResponse
         {
             Token = token,
-            Email = user.Email,
-            Nome = user.Nome
+            Email = clinica.Email,
+            Nome = clinica.Nome
         });
+        */
+        
+        return Unauthorized(new { message = "Email ou password inválidos" });
     }
 
-    private User? ValidateUser(string email, string password)
+    [HttpPost("login/funcionario")]
+    public async Task<IActionResult> LoginFuncionario([FromBody] LoginModel model)
     {
-        // TODO: Substituir por query à base de dados
-        // Utilizadores de teste (REMOVER em produção)
-        if (email == "admin@clinica.pt" && password == "admin123")
+        // MOCKUP DATA - Para testes sem BD
+        if (model.Email == "vet@teste.pt" && model.Password == "teste123")
         {
-            return new User
+            var token = GenerateJwtToken(1, "vet@teste.pt", "Dr. João Silva", "Funcionario", 1);
+            
+            return Ok(new AuthResponse
             {
-                Id = 1,
-                Email = email,
-                Nome = "Administrador",
-                Role = "Admin"
-            };
+                Token = token,
+                Email = "vet@teste.pt",
+                Nome = "Dr. João Silva"
+            });
         }
 
-        if (email == "user@clinica.pt" && password == "user123")
+        if (model.Email == "rececionista@teste.pt" && model.Password == "teste123")
         {
-            return new User
+            var token = GenerateJwtToken(2, "rececionista@teste.pt", "Maria Santos", "Funcionario", 1);
+            
+            return Ok(new AuthResponse
             {
-                Id = 2,
-                Email = email,
-                Nome = "Utilizador Teste",
-                Role = "User"
-            };
+                Token = token,
+                Email = "rececionista@teste.pt",
+                Nome = "Maria Santos"
+            });
         }
 
-        return null;
+        // Verificação real na BD (comentado para testes)
+        /*
+        var funcionario = await _context.Funcionarios
+            .SingleOrDefaultAsync(f => f.Email == model.Email && f.Password == model.Password);
+        
+        if (funcionario == null)
+        {
+            return Unauthorized(new { message = "Email ou password inválidos" });
+        }
+
+        var token = GenerateJwtToken(funcionario.Id, funcionario.Email, funcionario.Nome, "Funcionario", funcionario.ClinicaId);
+        
+        return Ok(new AuthResponse
+        {
+            Token = token,
+            Email = funcionario.Email,
+            Nome = funcionario.Nome
+        });
+        */
+        
+        return Unauthorized(new { message = "Email ou password inválidos" });
     }
 
-    private string GenerateJwtToken(User user)
+    private string GenerateJwtToken(int userId, string email, string nome, string role, int? clinicaId = null)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? "ChaveSecretaSuperSegura123456789012345678901234567890";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Nome),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Name, nome),
+            new Claim(ClaimTypes.Role, role)
         };
+
+        if (clinicaId.HasValue)
+        {
+            claims.Add(new Claim("ClinicaId", clinicaId.Value.ToString()));
+        }
 
         var token = new JwtSecurityToken(
             issuer: jwtSettings["Issuer"] ?? "ClinicaAPI",

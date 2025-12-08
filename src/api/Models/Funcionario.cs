@@ -26,6 +26,10 @@ public class Funcionario
     // NOT NULL in SQL
     public string Password { get; set; } = string.Empty;
 
+    // NOT NULL in SQL
+    public decimal Salario { get; set; }
+
     // Foreign key to Clinicas(id)
+    [Column("id_clinica")]
     public int ClinicaId { get; set; }
 }

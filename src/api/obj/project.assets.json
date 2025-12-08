@@ -1502,11 +1502,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/david/cvsl/src/api/api.csproj",
+      "projectUniqueName": "/home/david/dev/cvsl/src/api/api.csproj",
       "projectName": "api",
-      "projectPath": "/home/david/cvsl/src/api/api.csproj",
+      "projectPath": "/home/david/dev/cvsl/src/api/api.csproj",
       "packagesPath": "/home/david/.nuget/packages/",
-      "outputPath": "/home/david/cvsl/src/api/obj/",
+      "outputPath": "/home/david/dev/cvsl/src/api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/david/.nuget/NuGet/NuGet.Config"
@@ -1527,6 +1527,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -1581,7 +1586,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.121/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.416/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

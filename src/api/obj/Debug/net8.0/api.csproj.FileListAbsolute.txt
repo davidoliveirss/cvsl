@@ -159,3 +159,14 @@
 /home/david/cvsl/src/api/obj/Debug/net8.0/api.pdb
 /home/david/cvsl/src/api/obj/Debug/net8.0/api.genruntimeconfig.cache
 /home/david/cvsl/src/api/obj/Debug/net8.0/ref/api.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.Caching.Memory.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.Logging.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.Options.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
