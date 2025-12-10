@@ -5,7 +5,7 @@ import { authService } from '@/services/authService';
 interface User {
   email: string;
   nome: string;
-  type?: 'clinica' | 'funcionario';
+  type?: 'clinica' | 'funcionario' | 'admin';
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -17,8 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value);
   const isClinica = computed(() => user.value?.type === 'clinica');
   const isFuncionario = computed(() => user.value?.type === 'funcionario');
+  const isAdmin = computed(() => user.value?.type === 'admin');
 
-  async function login(email: string, password: string, userType: 'clinica' | 'funcionario' = 'clinica') {
+  async function login(email: string, password: string, userType: 'clinica' | 'funcionario' | 'admin' = 'clinica') {
     isLoading.value = true;
     error.value = null;
 
@@ -53,6 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isClinica,
     isFuncionario,
+    isAdmin,
     login,
     logout
   };

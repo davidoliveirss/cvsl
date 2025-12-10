@@ -70,7 +70,8 @@ public class ClinicasController : ControllerBase
             email = clinica.Email,
             cp = clinica.Cp,
             nif = clinica.Nif,
-            iban = clinica.Iban
+            iban = clinica.Iban,
+            ativo = clinica.Ativo
         });
     }
 
@@ -125,11 +126,35 @@ public class ClinicasController : ControllerBase
             return NotFound(new { message = "Clínica não encontrada" });
         }
 
-        _context.Clinicas.Remove(clinica);
+        // Soft delete - desativa a clínica (apenas admins podem fazer isto via AdminController)
+        clinica.Ativo = false;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Clínica removida com sucesso" });
+        return Ok(new { message = "Clínica desativada com sucesso" });
     }
+
+    [HttpPatch("{id}/ativo")]
+    public async Task<IActionResult> UpdateAtivoClinica(int id, [FromBody] UpdateAtivoClinicaModel model)
+    {
+        var clinica = await _context.Clinicas
+            .FirstOrDefaultAsync(c => c.Id == id);
+        
+        if (clinica == null)
+        {
+            return NotFound(new { message = "Clínica não encontrada" });
+        }
+
+        clinica.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Clínica {(model.Ativo ? "ativada" : "desativada")} com sucesso", ativo = clinica.Ativo });
+    }
+}
+
+// Model para atualizar status ativo
+public class UpdateAtivoClinicaModel
+{
+    public bool Ativo { get; set; }
 }
 
 // Model para criar funcionário

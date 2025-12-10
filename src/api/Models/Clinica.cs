@@ -38,4 +38,7 @@ public class Clinica
     [MaxLength(25)]
     [Column("iban")]
     public string Iban { get; set; } = string.Empty;
+
+    [Column("ativo")]
+    public bool Ativo { get; set; } = true;
 }

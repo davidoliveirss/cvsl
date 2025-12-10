@@ -92,7 +92,7 @@ public class AuthController : ControllerBase
 
         // Verificação real na BD com hash
         var funcionario = await _context.Funcionarios
-            .SingleOrDefaultAsync(f => f.Email == model.Email);
+            .SingleOrDefaultAsync(f => f.Email == model.Email && f.Ativo);
         
         if (funcionario == null || !BCrypt.Net.BCrypt.Verify(model.Password, funcionario.Password))
         {
@@ -109,7 +109,42 @@ public class AuthController : ControllerBase
         });
     }
 
-    private string GenerateJwtToken(int userId, string email, string nome, string role, int? clinicaId = null)
+    [HttpPost("login/admin")]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginModel model)
+    {
+        // MOCKUP DATA - Para testes
+        if (model.Email == "admin@cvsl.pt" && model.Password == "admin123")
+        {
+            var adminToken = GenerateJwtToken(1, "admin@cvsl.pt", "Admin Principal", "Admin");
+            
+            return Ok(new AuthResponse
+            {
+                Token = adminToken,
+                Email = "admin@cvsl.pt",
+                Nome = "Admin Principal"
+            });
+        }
+
+        // Verificação real na BD
+        var admin = await _context.Admins
+            .SingleOrDefaultAsync(a => a.Email == model.Email && a.Ativo);
+        
+        if (admin == null || !BCrypt.Net.BCrypt.Verify(model.Password, admin.Password))
+        {
+            return Unauthorized(new { message = "Email ou password inválidos" });
+        }
+
+        var token = GenerateJwtToken(admin.Id, admin.Email, admin.Nome, "Admin", null, admin.Nivel);
+        
+        return Ok(new AuthResponse
+        {
+            Token = token,
+            Email = admin.Email,
+            Nome = admin.Nome
+        });
+    }
+
+    private string GenerateJwtToken(int userId, string email, string nome, string role, int? clinicaId = null, string? nivel = null)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? "ChaveSecretaSuperSegura123456789012345678901234567890";
@@ -127,6 +162,11 @@ public class AuthController : ControllerBase
         if (clinicaId.HasValue)
         {
             claims.Add(new Claim("ClinicaId", clinicaId.Value.ToString()));
+        }
+
+        if (!string.IsNullOrEmpty(nivel))
+        {
+            claims.Add(new Claim("Nivel", nivel));
         }
 
         var token = new JwtSecurityToken(

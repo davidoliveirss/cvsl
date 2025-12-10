@@ -11,14 +11,18 @@ interface AuthResponse {
   nome: string;
 }
 
-type UserType = 'clinica' | 'funcionario';
+type UserType = 'clinica' | 'funcionario' | 'admin';
 
 export const authService = {
   async login(email: string, password: string, userType: UserType = 'clinica'): Promise<AuthResponse> {
     // Escolhe endpoint baseado no tipo de utilizador
-    const endpoint = userType === 'clinica' 
-      ? `${API_URL}/auth/login/clinica`
-      : `${API_URL}/auth/login/funcionario`;
+    let endpoint = `${API_URL}/auth/login/clinica`;
+    
+    if (userType === 'funcionario') {
+      endpoint = `${API_URL}/auth/login/funcionario`;
+    } else if (userType === 'admin') {
+      endpoint = `${API_URL}/auth/login/admin`;
+    }
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -88,6 +92,10 @@ export const authService = {
 
   isFuncionario(): boolean {
     return this.getUserType() === 'funcionario';
+  },
+
+  isAdmin(): boolean {
+    return this.getUserType() === 'admin';
   },
 
   // Função helper para fazer requests autenticadas

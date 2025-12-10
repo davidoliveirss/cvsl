@@ -9,6 +9,7 @@ public class ClinicaDbContext : DbContext
     public DbSet<Funcionario> Funcionarios { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Admin> Admins { get; set; }
 
     private readonly IConfiguration _config;
 
@@ -37,6 +38,10 @@ public class ClinicaDbContext : DbContext
 
         modelBuilder.Entity<Funcionario>()
             .HasIndex(f => f.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<Admin>()
+            .HasIndex(a => a.Email)
             .IsUnique();
     }
 }

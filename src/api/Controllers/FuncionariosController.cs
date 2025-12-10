@@ -81,15 +81,22 @@ public class FuncionariosController : ControllerBase
             telefone = funcionario.Telefone,
             email = funcionario.Email,
             salario = funcionario.Salario,
-            clinicaId = funcionario.ClinicaId
+            clinicaId = funcionario.ClinicaId,
+            ativo = funcionario.Ativo
         });
     }
 
     [HttpGet("clinica/{clinicaId}")]
-    public async Task<IActionResult> GetFuncionariosByClinica(int clinicaId)
+    public async Task<IActionResult> GetFuncionariosByClinica(int clinicaId, [FromQuery] bool incluirInativos = false)
     {
-        var funcionarios = await _context.Funcionarios
-            .Where(f => f.ClinicaId == clinicaId)
+        var query = _context.Funcionarios.Where(f => f.ClinicaId == clinicaId);
+        
+        if (!incluirInativos)
+        {
+            query = query.Where(f => f.Ativo);
+        }
+        
+        var funcionarios = await query
             .Select(f => new
             {
                 id = f.Id,
@@ -97,7 +104,8 @@ public class FuncionariosController : ControllerBase
                 especialidade = f.Especialidade,
                 telefone = f.Telefone,
                 email = f.Email,
-                salario = f.Salario
+                salario = f.Salario,
+                ativo = f.Ativo
             })
             .ToListAsync();
 
@@ -155,11 +163,35 @@ public class FuncionariosController : ControllerBase
             return NotFound(new { message = "Funcionário não encontrado" });
         }
 
-        _context.Funcionarios.Remove(funcionario);
+        // Soft delete - desativa o funcionário
+        funcionario.Ativo = false;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Funcionário removido com sucesso" });
+        return Ok(new { message = "Funcionário desativado com sucesso" });
     }
+
+    [HttpPatch("{id}/ativo")]
+    public async Task<IActionResult> UpdateAtivoFuncionario(int id, [FromBody] UpdateAtivoModel model)
+    {
+        var funcionario = await _context.Funcionarios
+            .FirstOrDefaultAsync(f => f.Id == id);
+        
+        if (funcionario == null)
+        {
+            return NotFound(new { message = "Funcionário não encontrado" });
+        }
+
+        funcionario.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Funcionário {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = funcionario.Ativo });
+    }
+}
+
+// Model para atualizar status ativo
+public class UpdateAtivoModel
+{
+    public bool Ativo { get; set; }
 }
 
 // Model para criar funcionário
