@@ -8,6 +8,7 @@ public class ClinicaDbContext : DbContext
     public DbSet<Clinica> Clinicas { get; set; }
     public DbSet<Funcionario> Funcionarios { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
+    public DbSet<User> Users { get; set; }
 
     private readonly IConfiguration _config;
 

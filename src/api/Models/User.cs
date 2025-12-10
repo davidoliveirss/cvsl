@@ -6,5 +6,5 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string Nome { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public string Role { get; set; } = "User"; // "Admin" ou "User"
+    public string Role { get; set; } = "User"; // "Admin", "User", "Clinica", "Funcionario"
 }
