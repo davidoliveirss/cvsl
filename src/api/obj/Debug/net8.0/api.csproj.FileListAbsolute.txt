@@ -170,3 +170,4 @@
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/Microsoft.Extensions.Options.dll
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.dll
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/BCrypt.Net-Next.dll

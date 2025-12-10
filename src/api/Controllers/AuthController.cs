@@ -24,19 +24,19 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/clinica")]
-    public async Task<IActionResult> LoginClinica([FromBody] LoginModel model)
+    public Task<IActionResult> LoginClinica([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes sem BD
         if (model.Email == "clinica@teste.pt" && model.Password == "teste123")
         {
-            var token = GenerateJwtToken(1, "clinica@teste.pt", "Clínica Veterinária Teste", "Clinica");
+            var clinicaToken = GenerateJwtToken(1, "clinica@teste.pt", "Clínica Veterinária Teste", "Clinica");
             
-            return Ok(new AuthResponse
+            return Task.FromResult<IActionResult>(Ok(new AuthResponse
             {
-                Token = token,
+                Token = clinicaToken,
                 Email = "clinica@teste.pt",
                 Nome = "Clínica Veterinária Teste"
-            });
+            }));
         }
 
         // Verificação real na BD (comentado para testes)
@@ -59,7 +59,7 @@ public class AuthController : ControllerBase
         });
         */
         
-        return Unauthorized(new { message = "Email ou password inválidos" });
+        return Task.FromResult<IActionResult>(Unauthorized(new { message = "Email ou password inválidos" }));
     }
 
     [HttpPost("login/funcionario")]
@@ -68,11 +68,11 @@ public class AuthController : ControllerBase
         // MOCKUP DATA - Para testes sem BD
         if (model.Email == "vet@teste.pt" && model.Password == "teste123")
         {
-            var token = GenerateJwtToken(1, "vet@teste.pt", "Dr. João Silva", "Funcionario", 1);
+            var vetToken = GenerateJwtToken(1, "vet@teste.pt", "Dr. João Silva", "Funcionario", 1);
             
             return Ok(new AuthResponse
             {
-                Token = token,
+                Token = vetToken,
                 Email = "vet@teste.pt",
                 Nome = "Dr. João Silva"
             });
@@ -80,11 +80,11 @@ public class AuthController : ControllerBase
 
         if (model.Email == "rececionista@teste.pt" && model.Password == "teste123")
         {
-            var token = GenerateJwtToken(2, "rececionista@teste.pt", "Maria Santos", "Funcionario", 1);
+            var recepcionistaToken = GenerateJwtToken(2, "rececionista@teste.pt", "Maria Santos", "Funcionario", 1);
             
             return Ok(new AuthResponse
             {
-                Token = token,
+                Token = recepcionistaToken,
                 Email = "rececionista@teste.pt",
                 Nome = "Maria Santos"
             });
@@ -99,16 +99,14 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Email ou password inválidos" });
         }
 
-        var token = GenerateJwtToken(funcionario.Id, funcionario.Email, funcionario.Nome, "Funcionario", funcionario.ClinicaId);
+        var funcionarioToken = GenerateJwtToken(funcionario.Id, funcionario.Email, funcionario.Nome, "Funcionario", funcionario.ClinicaId);
         
         return Ok(new AuthResponse
         {
-            Token = token,
+            Token = funcionarioToken,
             Email = funcionario.Email,
             Nome = funcionario.Nome
         });
-        
-        return Unauthorized(new { message = "Email ou password inválidos" });
     }
 
     private string GenerateJwtToken(int userId, string email, string nome, string role, int? clinicaId = null)
