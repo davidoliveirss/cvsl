@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "tX/2si71mEo=",
+  "dgSpecHash": "QhouU+h4hgg=",
   "success": true,
   "projectFilePath": "/home/david/dev/cvsl/src/api/api.csproj",
   "expectedPackageFiles": [
+    "/home/david/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/david/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.0/microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
     "/home/david/.nuget/packages/microsoft.aspnetcore.openapi/8.0.21/microsoft.aspnetcore.openapi.8.0.21.nupkg.sha512",
     "/home/david/.nuget/packages/microsoft.entityframeworkcore/8.0.22/microsoft.entityframeworkcore.8.0.22.nupkg.sha512",

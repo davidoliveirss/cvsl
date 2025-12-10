@@ -9,27 +9,27 @@ namespace api.Models;
 public class Funcionario
 {
     [Key]
+    [Column("id")]
     public int Id { get; set; }
 
-    // NOT NULL in SQL
+    [Column("nome")]
     public string Nome { get; set; } = string.Empty;
 
-    // Optional
+    [Column("especialidade")]
     public string? Especialidade { get; set; }
 
-    // NOT NULL in SQL
+    [Column("telefone")]
     public string Telefone { get; set; } = string.Empty;
 
-    // NOT NULL in SQL
+    [Column("email")]
     public string Email { get; set; } = string.Empty;
 
-    // NOT NULL in SQL
+    [Column("password")]
     public string Password { get; set; } = string.Empty;
 
-    // NOT NULL in SQL
+    [Column("salario")]
     public decimal Salario { get; set; }
 
-    // Foreign key to Clinicas(id)
     [Column("id_clinica")]
     public int ClinicaId { get; set; }
 }

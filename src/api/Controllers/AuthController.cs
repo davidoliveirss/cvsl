@@ -6,6 +6,7 @@ using System.Text;
 using api.Models;
 using api.Context;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 
 namespace api.Controllers;
 
@@ -89,12 +90,11 @@ public class AuthController : ControllerBase
             });
         }
 
-        // Verificação real na BD (comentado para testes)
-        /*
+        // Verificação real na BD com hash
         var funcionario = await _context.Funcionarios
-            .SingleOrDefaultAsync(f => f.Email == model.Email && f.Password == model.Password);
+            .SingleOrDefaultAsync(f => f.Email == model.Email);
         
-        if (funcionario == null)
+        if (funcionario == null || !BCrypt.Net.BCrypt.Verify(model.Password, funcionario.Password))
         {
             return Unauthorized(new { message = "Email ou password inválidos" });
         }
@@ -107,7 +107,6 @@ public class AuthController : ControllerBase
             Email = funcionario.Email,
             Nome = funcionario.Nome
         });
-        */
         
         return Unauthorized(new { message = "Email ou password inválidos" });
     }
