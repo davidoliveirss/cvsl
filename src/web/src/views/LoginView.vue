@@ -1,79 +1,190 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar } from 'quasar'; // IMPORTANTE!
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useAuthStore } from '@/stores/auth';
 
-const $q = useQuasar(); // ACEDER AO CONTEXTO DO QUASAR
+const $q = useQuasar();
+const router = useRouter();
+const authStore = useAuthStore();
 
-const tab = ref('login'); // Controle das tabs
-const name = ref('');
-const surename = ref('');
+const email = ref('');
 const password = ref('');
-const birth_date = ref('');
-const checkbox = ref(false);
+const userType = ref<'clinica' | 'funcionario'>('clinica');
 
-function onRegister() {
-    console.log("Registo")
+async function onLogin() {
+    if (!email.value || !password.value) {
+        $q.notify({
+            type: 'negative',
+            message: 'Preencha email e password',
+            position: 'top'
+        });
+        return;
+    }
+
+    const success = await authStore.login(email.value, password.value, userType.value);
+
+    if (success) {
+        $q.notify({
+            type: 'positive',
+            message: `Bem-vindo(a), ${authStore.user?.nome}!`,
+            icon: 'check_circle',
+            position: 'top'
+        });
+        router.push('/');
+    } else {
+        $q.notify({
+            type: 'negative',
+            message: authStore.error || 'Email ou password inválidos',
+            icon: 'error',
+            position: 'top'
+        });
+    }
 }
 </script>
 
-
 <template>
-    <div class="q-pa-md">
-        <q-card flat bordered>
-            <q-card-section>
-                <div v-if="tab == 'login'" class="text-h5 text-center">Login</div>
-                <div v-if="tab == 'register'" class="text-h5 text-center">Regista-te</div>
-                <div class="text-subtitle2 text-center">by NoLife Dev Team</div>
-            </q-card-section>
+    <q-layout>
+        <q-page-container>
+            <q-page class="flex flex-center" style="background: linear-gradient(135deg, #357870 0%, #2a5f5a 100%);">
+                <q-card style="width: 100%; max-width: 450px; border-radius: 16px;" class="shadow-10">
+                    <!-- Header -->
+                    <q-card-section class="text-center" style="background-color: #357870; color: white; padding: 32px;">
+                        <div class="text-h4 text-weight-bold q-mb-sm">
+                            🐾 Centro Veterinário
+                        </div>
+                        <div class="text-h6">
+                            S. Lourenço
+                        </div>
+                        <div class="text-caption q-mt-sm" style="opacity: 0.9;">
+                            Sistema de Gestão Veterinária
+                        </div>
+                    </q-card-section>
 
-            <q-tabs v-model="tab" class="text-teal">
-                <q-tab label="Login" class="text-grey-9" name="login" />
-                <q-tab label="Register" class="text-grey-9" name="register" />
-            </q-tabs>
+                    <q-separator />
 
-            <q-separator />
+                    <q-card-section style="padding: 32px;">
+                        <!-- Seletor de tipo de utilizador -->
+                        <div class="q-mb-lg">
+                            <div class="text-subtitle2 text-grey-8 q-mb-sm text-weight-medium">Entrar como:</div>
+                            <q-btn-toggle
+                                v-model="userType"
+                                spread
+                                no-caps
+                                rounded
+                                unelevated
+                                toggle-color="primary"
+                                color="grey-3"
+                                text-color="grey-9"
+                                style="border: 2px solid #357870;"
+                                :options="[
+                                    { label: '🏥 Clínica', value: 'clinica' },
+                                    { label: '👨‍⚕️ Funcionário', value: 'funcionario' }
+                                ]"
+                            />
+                        </div>
 
-            <q-tab-panels v-model="tab" animated>
-                <q-tab-panel name="login" style="color: #357870;">
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="name" label="Email" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-md" v-model="name" label="Password" />
-                    <div class="q-mt-md q-mr-md" style="text-align: right;">
-                        <q-btn push color="grey-9" label="Login" />
-                    </div>
-                </q-tab-panel>
-
-                <q-tab-panel name="register" animated>
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="name" label="Nome" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" v-model="surename"
-                        label="Sobrenome" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined  bg-color="grey-3" color="grey-10" v-model="name"
-                        hint="Email escolar ou pessoal" label="Email" lazy-rules
-                        :rules="[val => val && val.length > 0 || 'Tens que escrever algo']" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-md" v-model="birth_date"
-                        label="Data nascimento" />
-                    <q-input rounded outlined bg-color="grey-3" color="grey-10" class="q-mt-lg" v-model="password"
-                        label="Password" />
-
-                    <div class="q-mt-md q-mr-md" style="text-align: right;">
-                        <q-checkbox v-model="checkbox" color="grey-9">
-                            <template v-slot:default>
-                                <span>
-                                    Eu li e aceito os
-                                    <router-link to="/termos-e-condicoes"
-                                        style="text-decoration: underline; color: #357870;" @click.stop>
-                                        termos de utilização
-                                    </router-link>
-                                </span>
+                        <!-- Credenciais de teste -->
+                        <q-banner 
+                            v-if="userType === 'clinica'" 
+                            dense 
+                            rounded 
+                            class="q-mb-lg"
+                            style="background-color: #e8f5f3; border-left: 4px solid #357870;"
+                        >
+                            <template v-slot:avatar>
+                                <q-icon name="info" style="color: #357870;" />
                             </template>
-                        </q-checkbox>
-                        <q-btn push class="q-ml-md" color="grey-9" @click="onRegister" label="Register" />
-                    </div>
-                </q-tab-panel>
-            </q-tab-panels>
-        </q-card>
-    </div>
+                            <div class="text-caption" style="color: #2a5f5a;">
+                                <strong>Teste:</strong> clinica@teste.pt / teste123
+                            </div>
+                        </q-banner>
+
+                        <q-banner 
+                            v-else 
+                            dense 
+                            rounded 
+                            class="q-mb-lg"
+                            style="background-color: #e8f5f3; border-left: 4px solid #357870;"
+                        >
+                            <template v-slot:avatar>
+                                <q-icon name="info" style="color: #357870;" />
+                            </template>
+                            <div class="text-caption" style="color: #2a5f5a;">
+                                <strong>Veterinário:</strong> vet@teste.pt / teste123<br>
+                                <strong>Rececionista:</strong> rececionista@teste.pt / teste123
+                            </div>
+                        </q-banner>
+
+                        <!-- Formulário -->
+                        <q-input 
+                            rounded 
+                            outlined 
+                            v-model="email" 
+                            label="Email"
+                            type="email"
+                            bg-color="grey-1"
+                            color="primary"
+                            @keyup.enter="onLogin"
+                            :rules="[val => !!val || 'Email é obrigatório']"
+                            class="q-mb-md"
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="email" style="color: #357870;" />
+                            </template>
+                        </q-input>
+
+                        <q-input 
+                            rounded 
+                            outlined 
+                            v-model="password" 
+                            label="Password"
+                            type="password"
+                            bg-color="grey-1"
+                            color="primary"
+                            @keyup.enter="onLogin"
+                            :rules="[val => !!val || 'Password é obrigatória']"
+                            class="q-mb-lg"
+                        >
+                            <template v-slot:prepend>
+                                <q-icon name="lock" style="color: #357870;" />
+                            </template>
+                        </q-input>
+
+                        <!-- Botão de Login -->
+                        <q-btn 
+                            unelevated
+                            rounded
+                            label="Entrar" 
+                            class="full-width"
+                            size="lg"
+                            style="background-color: #357870; color: white;"
+                            @click="onLogin"
+                            :loading="authStore.isLoading"
+                            :disable="!email || !password"
+                        />
+                    </q-card-section>
+
+                    <!-- Footer -->
+                    <q-separator />
+                    <q-card-section class="text-center" style="padding: 16px; background-color: #f5f5f5;">
+                        <div class="text-caption text-grey-7">
+                            by <strong>NoLife Dev Team</strong>
+                        </div>
+                    </q-card-section>
+                </q-card>
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 
-<style scoped></style>
+<style scoped>
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    align-items: center;
+    justify-content: center;
+}
+</style>

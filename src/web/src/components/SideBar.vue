@@ -1,9 +1,39 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { useQuasar } from 'quasar';
 
-const sideBar = defineModel<boolean>('sideBar'); // usa model para controlar estado do drawer
+const sideBar = defineModel<boolean>('sideBar');
 const router = useRouter();
+const authStore = useAuthStore();
+const $q = useQuasar();
+
+function handleLogout() {
+  $q.dialog({
+    title: 'Confirmar logout',
+    message: 'Tem certeza que deseja sair?',
+    cancel: {
+      label: 'Cancelar',
+      color: 'grey-7',
+      flat: true
+    },
+    ok: {
+      label: 'Sair',
+      color: 'negative',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(() => {
+    authStore.logout();
+    $q.notify({
+      type: 'info',
+      message: 'Sessão encerrada com sucesso',
+      position: 'top'
+    });
+    router.push('/login');
+  });
+}
 </script>
 
 <template>
@@ -25,61 +55,59 @@ const router = useRouter();
         </q-item-section>
       </q-item>
 
-      <q-item clickable v-ripple @click="router.push('/calendario')">
+      <q-item clickable v-ripple @click="router.push('/clientes')">
+        <q-item-section avatar>
+          <q-icon name="people" color="white" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>Clientes</q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-item clickable v-ripple @click="router.push('/resumos')">
+        <q-item-section avatar>
+          <q-icon name="pets" color="white" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>Animais</q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-item clickable v-ripple @click="router.push('/resumos')">
         <q-item-section avatar>
           <q-icon name="event" color="white" />
         </q-item-section>
         <q-item-section>
-          <q-item-label>Calendário</q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-item clickable v-ripple @click="router.push('/resumos')">
-        <q-item-section avatar>
-          <q-icon name="school" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Resumos</q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-item clickable v-ripple @click="router.push('/resumos')">
-        <q-item-section avatar>
-          <q-icon name="dashboard" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Gerir resumos</q-item-label>
+          <q-item-label>Consultas</q-item-label>
         </q-item-section>
       </q-item>
 
       <q-item clickable v-ripple @click="router.push('/avaliar')">
         <q-item-section avatar>
-          <q-icon name="rate_review" color="white" />
+          <q-icon name="receipt" color="white" />
         </q-item-section>
         <q-item-section>
-          <q-item-label>Feedback</q-item-label>
+          <q-item-label>Faturas</q-item-label>
         </q-item-section>
       </q-item>
 
       <div class="fixed-bottom" style="margin-bottom: 0; padding-bottom: 0;">
-        <q-item clickable v-ripple @click="router.push('/status')" style="margin-bottom: 0;">
+        <q-separator dark class="q-mb-sm" />
+        
+        <!-- Info do utilizador -->
+        <q-item v-if="authStore.user" class="q-mb-xs">
           <q-item-section avatar>
-            <q-icon name="running_with_errors" color="white" />
+            <q-avatar color="white" text-color="primary" icon="account_circle" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Status</q-item-label>
+            <q-item-label class="text-weight-medium">{{ authStore.user.nome }}</q-item-label>
+            <q-item-label caption class="text-white" style="opacity: 0.7;">
+              {{ authStore.isClinica ? '🏥 Clínica' : '👨‍⚕️ Funcionário' }}
+            </q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple @click="router.push('/termos-e-condicoes')" style="margin-bottom: 0;">
-          <q-item-section avatar>
-            <q-icon name="article" color="white" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Termos e condições</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item clickable v-ripple @click="router.push('/conta')">
+        
+        <q-item clickable v-ripple @click="handleLogout">
           <q-item-section avatar>
             <q-icon name="logout" color="white" />
           </q-item-section>

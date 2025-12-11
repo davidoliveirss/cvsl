@@ -1,10 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: () => import('../views/HomeView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/clientes',
+    name: 'clientes',
+    component: () => import('../views/ClientesView.vue'),
     meta: { requiresAuth: true }
   },
   {
@@ -61,15 +68,17 @@ const router = createRouter({
   routes
 })
 
-// Guarda o estado de login (simples com localStorage)
-/*router.beforeEach((to, from, next) => {
-  const loggedIn = localStorage.getItem('user') // exemplo: "user" guardado no login
-  if (to.meta.requiresAuth && !loggedIn) {
-    next('/login') // redireciona para login se não estiver autenticado
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login');
+  } else if (to.path === '/login' && authStore.isAuthenticated) {
+    next('/');
   } else {
-    next() // permite acesso
+    next();
   }
 })
-*/
+
 export default router
 

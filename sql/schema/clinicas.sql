@@ -5,5 +5,6 @@ CREATE TABLE clinicas (
     password VARCHAR(255) NOT NULL, 
     cp VARCHAR(8) NOT NULL,
     nif VARCHAR(9),
-    iban varchar(25) NOT NULL
+    iban varchar(25) NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE
 );
