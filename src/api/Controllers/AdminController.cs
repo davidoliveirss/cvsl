@@ -20,7 +20,7 @@ public class AdminController : ControllerBase
     }
 
 
-    [HttpGet("clinicas")]
+    [HttpGet("clinicas")] //pesquisas clinicas em paginas
     public async Task<IActionResult> GetAllClinicas([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool incluirInativos = false)
     {
         var skip = (page - 1) * pageSize;
@@ -61,7 +61,7 @@ public class AdminController : ControllerBase
         });
     }
 
-    [HttpGet("clinicas/{id}")]
+    [HttpGet("clinicas/{id}")] //procurar clinica
     public async Task<IActionResult> GetClinica(int id)
     {
         var clinica = await _context.Clinicas
@@ -88,7 +88,7 @@ public class AdminController : ControllerBase
         return Ok(clinica);
     }
 
-    [HttpPost("clinicas")]
+    [HttpPost("clinicas")] //criar clinica 
     public async Task<IActionResult> CreateClinica([FromBody] ClinicaCreateDto dto)
     {
         // Verificar se email já existe
@@ -119,7 +119,7 @@ public class AdminController : ControllerBase
         });
     }
 
-    [HttpPut("clinicas/{id}")]
+    [HttpPut("clinicas/{id}")] //alterar informacoes clinica
     public async Task<IActionResult> UpdateClinica(int id, [FromBody] ClinicaUpdateDto dto)
     {
         var clinica = await _context.Clinicas.FindAsync(id);
@@ -155,20 +155,6 @@ public class AdminController : ControllerBase
         });
     }
 
-    [HttpDelete("clinicas/{id}")]
-    public async Task<IActionResult> DeleteClinica(int id)
-    {
-        var clinica = await _context.Clinicas.FindAsync(id);
-        if (clinica == null)
-            return NotFound(new { message = "Clínica não encontrada" });
-
-        // Soft delete - desativa a clínica
-        clinica.Ativo = false;
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Clínica desativada com sucesso" });
-    }
-
     // ========== ESTATÍSTICAS GLOBAIS ==========
 
     [HttpGet("dashboard/stats")]
@@ -189,7 +175,7 @@ public class AdminController : ControllerBase
     // ========== GESTÃO DE ADMINS ==========
 
     [HttpGet("admins")]
-    [Authorize(Roles = "Admin")] // Apenas super_admin deveria ver isso idealmente
+    [Authorize(Roles = "Admin")] // Apenas super_admin deveria ver isso idealmente -- nao sei se está apenas superadmin
     public async Task<IActionResult> GetAllAdmins()
     {
         var admins = await _context.Admins
@@ -233,9 +219,9 @@ public class AdminController : ControllerBase
         });
     }
 
-    // ========== GESTÃO DE FUNCIONÁRIOS (ADMIN) ==========
+    // ========== GESTÃO DE FUNCIONÁRIOS/clinicas (ADMIN) ==========
 
-    [HttpDelete("funcionarios/{id}")]
+    [HttpDelete("funcionarios/{id}")] //endpoint para desativar funcionario
     public async Task<IActionResult> DeleteFuncionario(int id)
     {
         var funcionario = await _context.Funcionarios.FindAsync(id);
@@ -249,7 +235,21 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Funcionário desativado com sucesso" });
     }
 
-    [HttpPatch("funcionarios/{id}/ativo")]
+    [HttpDelete("clinicas/{id}")] //endpoint para desativar clinica
+    public async Task<IActionResult> DeleteClinica(int id)
+    {
+        var clinica = await _context.Clinicas.FindAsync(id);
+        if (clinica == null)
+            return NotFound(new { message = "Clínica não encontrada" });
+
+        // Soft delete - desativa a clínica
+        clinica.Ativo = false;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Clínica desativada com sucesso" });
+    }
+
+    [HttpPatch("funcionarios/{id}/ativo")] //endpoint para ativar funcionario
     public async Task<IActionResult> UpdateAtivoFuncionario(int id, [FromBody] UpdateAtivoAdminModel model)
     {
         var funcionario = await _context.Funcionarios.FindAsync(id);
@@ -262,7 +262,7 @@ public class AdminController : ControllerBase
         return Ok(new { message = $"Funcionário {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = funcionario.Ativo });
     }
 
-    [HttpPatch("clinicas/{id}/ativo")]
+    [HttpPatch("clinicas/{id}/ativo")] //endpoint para ativar clinica
     public async Task<IActionResult> UpdateAtivoClinica(int id, [FromBody] UpdateAtivoAdminModel model)
     {
         var clinica = await _context.Clinicas.FindAsync(id);
