@@ -171,3 +171,4 @@
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.dll
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
 /home/david/dev/cvsl/src/api/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/david/dev/cvsl/src/api/bin/Debug/net8.0/Swashbuckle.AspNetCore.Annotations.dll

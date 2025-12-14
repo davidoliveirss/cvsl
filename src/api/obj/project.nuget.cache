@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "QhouU+h4hgg=",
+  "dgSpecHash": "dVQ+jArHEmw=",
   "success": true,
   "projectFilePath": "/home/david/dev/cvsl/src/api/api.csproj",
   "expectedPackageFiles": [
@@ -30,10 +30,11 @@
     "/home/david/.nuget/packages/microsoft.openapi/1.6.14/microsoft.openapi.1.6.14.nupkg.sha512",
     "/home/david/.nuget/packages/npgsql/8.0.8/npgsql.8.0.8.nupkg.sha512",
     "/home/david/.nuget/packages/npgsql.entityframeworkcore.postgresql/8.0.11/npgsql.entityframeworkcore.postgresql.8.0.11.nupkg.sha512",
-    "/home/david/.nuget/packages/swashbuckle.aspnetcore/6.6.2/swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
-    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swagger/6.6.2/swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",
-    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.6.2/swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
-    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.6.2/swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
+    "/home/david/.nuget/packages/swashbuckle.aspnetcore/6.9.0/swashbuckle.aspnetcore.6.9.0.nupkg.sha512",
+    "/home/david/.nuget/packages/swashbuckle.aspnetcore.annotations/6.9.0/swashbuckle.aspnetcore.annotations.6.9.0.nupkg.sha512",
+    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swagger/6.9.0/swashbuckle.aspnetcore.swagger.6.9.0.nupkg.sha512",
+    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.9.0/swashbuckle.aspnetcore.swaggergen.6.9.0.nupkg.sha512",
+    "/home/david/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.9.0/swashbuckle.aspnetcore.swaggerui.6.9.0.nupkg.sha512",
     "/home/david/.nuget/packages/system.identitymodel.tokens.jwt/8.0.0/system.identitymodel.tokens.jwt.8.0.0.nupkg.sha512"
   ],
   "logs": []
