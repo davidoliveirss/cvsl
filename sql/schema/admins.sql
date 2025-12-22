@@ -6,6 +6,3 @@ CREATE TABLE admins (
     nivel VARCHAR(20) DEFAULT 'admin' CHECK (nivel IN ('super_admin', 'admin')),
     ativo BOOLEAN DEFAULT TRUE
 );
-
--- Índice para otimizar login
-CREATE INDEX idx_admins_email ON admins(email);
