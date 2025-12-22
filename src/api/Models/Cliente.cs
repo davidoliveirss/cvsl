@@ -28,4 +28,7 @@ public class Cliente
     // Use `ClinicaId` to follow common EF conventions.
     [Column("id_clinica")]
     public int ClinicaId { get; set; }
+
+    [Column("ativo")]
+    public bool Ativo { get; set; } = true;
 }

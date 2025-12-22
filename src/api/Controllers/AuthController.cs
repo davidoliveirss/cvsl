@@ -7,6 +7,7 @@ using api.Models;
 using api.Context;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -24,6 +25,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/clinica")]
+    [SwaggerOperation(
+        Summary = "Login para clinicas",
+        Description = "Login para clinicas, retorna token com clinicid"
+    )]
     public async Task<IActionResult> LoginClinica([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes sem BD
@@ -59,6 +64,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/funcionario")]
+    [SwaggerOperation(
+        Summary = "Login para funcionario",
+        Description = "Login para funcionario, retorna token com funcionario"
+    )]
     public async Task<IActionResult> LoginFuncionario([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes sem BD
@@ -106,6 +115,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/admin")]
+    [SwaggerOperation(
+        Summary = "Login para admins",
+        Description = "Login para admins, retorna token com admin"
+    )]
     public async Task<IActionResult> LoginAdmin([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes

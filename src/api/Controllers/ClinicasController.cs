@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -65,6 +66,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("perfil")]
+    [SwaggerOperation(
+        Summary = "Perfil clinica",
+        Description = "Com o token do login listar as defenições da clinica"
+    )]
     public async Task<IActionResult> GetClinica()
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -96,6 +101,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPut("perfil")]
+    [SwaggerOperation(
+        Summary = "Atualizar informações da clinica",
+        Description = "Metodo para atualizar as informações da clinica"
+    )]
     public async Task<IActionResult> UpdateClinica([FromBody] UpdateClinicaModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -127,6 +136,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPost("funcionarios")]
+    [SwaggerOperation(
+        Summary = "Registar funcionario",
+        Description = "Metodo para registar um funcionario na clinica que está logada"
+    )]
     public async Task<IActionResult> RegisterFuncionario([FromBody] RegisterFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -171,6 +184,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("funcionarios")]
+    [SwaggerOperation(
+        Summary = "Listar funcionarios",
+        Description = "Metodo para listar funcionarios"
+    )]
     public async Task<IActionResult> GetFuncionarios([FromQuery] bool incluirInativos = false)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -205,6 +222,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar um funcionario",
+        Description = "Metodo para pesquisar um funcionario"
+    )]
     public async Task<IActionResult> GetFuncionario(int funcionarioId)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -236,6 +257,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPut("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar funcionario",
+        Description = "Metodo para atualizar informações do funcionario"
+    )]
     public async Task<IActionResult> UpdateFuncionario(int funcionarioId, [FromBody] UpdateFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -284,6 +309,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpDelete("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Desativar funcionario",
+        Description = "Metodo para desativar funcionario"
+    )]
     public async Task<IActionResult> DeleteFuncionario(int funcionarioId)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -310,6 +339,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPatch("funcionarios/{funcionarioId}/ativo")]
+    [SwaggerOperation(
+        Summary = "Reativar funcionario",
+        Description = "Metodo para reativar funcionario"
+    )]
     public async Task<IActionResult> UpdateAtivoFuncionario(int funcionarioId, [FromBody] UpdateAtivoFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -333,53 +366,17 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Funcionário {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = funcionario.Ativo });
     }
 
-    // ========== GESTÃO DE CATEGORIAS ==========
-
-    [Authorize(Roles = "Clinica")]
-    [HttpPost("categorias")]
-    public async Task<IActionResult> CreateCategoria([FromBody] CreateCategoriaModel model)
-    {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var novaCategoria = new Categoria
-        {
-            Nome = model.Nome,
-            Descricao = model.Descricao,
-            Iva = model.Iva,
-            IdClinica = clinicaId.Value
-        };
-
-        _context.Categorias.Add(novaCategoria);
-        await _context.SaveChangesAsync();
-
-        return Ok(new 
-        {
-            message = "Categoria criada com sucesso",
-            id = novaCategoria.Id,
-            nome = novaCategoria.Nome,
-            descricao = novaCategoria.Descricao,
-            iva = novaCategoria.Iva
-        });
-    }
+    // ========== VISUALIZAÇÃO DE CATEGORIAS (somente leitura) ==========
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("categorias")]
+    [SwaggerOperation(
+        Summary = "Listar categorias",
+        Description = "Metodo para listar categorias globais"
+    )]
     public async Task<IActionResult> GetCategorias()
     {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
         var categorias = await _context.Categorias
-            .Where(c => c.IdClinica == clinicaId.Value)
             .Select(c => new
             {
                 id = c.Id,
@@ -394,17 +391,14 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar categoria",
+        Description = "Metodo para pesquisar uma categoria"
+    )]
     public async Task<IActionResult> GetCategoria(int categoriaId)
     {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
         var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
+            .FirstOrDefaultAsync(c => c.Id == categoriaId);
         
         if (categoria == null)
         {
@@ -420,9 +414,15 @@ public class ClinicasController : ControllerBase
         });
     }
 
+    // ========== GESTÃO DE PRODUTOS ==========
+
     [Authorize(Roles = "Clinica")]
-    [HttpPut("categorias/{categoriaId}")]
-    public async Task<IActionResult> UpdateCategoria(int categoriaId, [FromBody] UpdateCategoriaModel model)
+    [HttpPost("produtos")]
+    [SwaggerOperation(
+        Summary = "Registar produto",
+        Description = "Metodo para registar um produto na clinica logada"
+    )]
+    public async Task<IActionResult> CreateProduto([FromBody] CreateProdutoModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
         
@@ -431,26 +431,44 @@ public class ClinicasController : ControllerBase
             return Unauthorized(new { message = "Token inválido" });
         }
 
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
+        // Verifica se a categoria existe
+        var categoriaExiste = await _context.Categorias
+            .AnyAsync(c => c.Id == model.IdCategoria);
         
-        if (categoria == null)
+        if (!categoriaExiste)
         {
-            return NotFound(new { message = "Categoria não encontrada" });
+            return BadRequest(new { message = "Categoria não encontrada" });
         }
 
-        categoria.Nome = model.Nome;
-        categoria.Descricao = model.Descricao;
-        categoria.Iva = model.Iva;
+        var novoProduto = new Produto
+        {
+            Nome = model.Nome,
+            IdCategoria = model.IdCategoria,
+            Preco = model.Preco,
+            UnidadesPorCaixa = model.UnidadesPorCaixa,
+            QuantidadeStock = model.QuantidadeStock,
+            IdClinica = clinicaId.Value
+        };
 
+        _context.Produtos.Add(novoProduto);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Categoria atualizada com sucesso" });
+        return Ok(new 
+        {
+            message = "Produto criado com sucesso",
+            id = novoProduto.Id,
+            nome = novoProduto.Nome,
+            preco = novoProduto.Preco
+        });
     }
 
     [Authorize(Roles = "Clinica")]
-    [HttpDelete("categorias/{categoriaId}")]
-    public async Task<IActionResult> DeleteCategoria(int categoriaId)
+    [HttpGet("produtos")]
+    [SwaggerOperation(
+        Summary = "Listar produtos",
+        Description = "Metodo para listar produtos da clinica logada"
+    )]
+    public async Task<IActionResult> GetProdutos([FromQuery] int? categoriaId = null, [FromQuery] bool incluirInativos = false)
     {
         var clinicaId = GetClinicaIdFromToken();
         
@@ -459,18 +477,174 @@ public class ClinicasController : ControllerBase
             return Unauthorized(new { message = "Token inválido" });
         }
 
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
+        var query = _context.Produtos
+            .Include(p => p.Categoria)
+            .Where(p => p.IdClinica == clinicaId.Value);
         
-        if (categoria == null)
+        if (!incluirInativos)
         {
-            return NotFound(new { message = "Categoria não encontrada" });
+            query = query.Where(p => p.Ativo);
+        }
+        
+        if (categoriaId.HasValue)
+        {
+            query = query.Where(p => p.IdCategoria == categoriaId.Value);
+        }
+        
+        var produtos = await query
+            .Select(p => new
+            {
+                id = p.Id,
+                nome = p.Nome,
+                idCategoria = p.IdCategoria,
+                nomeCategoria = p.Categoria!.Nome,
+                preco = p.Preco,
+                unidadesPorCaixa = p.UnidadesPorCaixa,
+                quantidadeStock = p.QuantidadeStock,
+                ativo = p.Ativo
+            })
+            .ToListAsync();
+
+        return Ok(produtos);
+    }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpGet("produtos/{produtoId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar produto",
+        Description = "Metodo para pesquisar um produto"
+    )]
+    public async Task<IActionResult> GetProduto(int produtoId)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
         }
 
-        _context.Categorias.Remove(categoria);
+        var produto = await _context.Produtos
+            .Include(p => p.Categoria)
+            .FirstOrDefaultAsync(p => p.Id == produtoId && p.IdClinica == clinicaId.Value);
+        
+        if (produto == null)
+        {
+            return NotFound(new { message = "Produto não encontrado" });
+        }
+
+        return Ok(new
+        {
+            id = produto.Id,
+            nome = produto.Nome,
+            idCategoria = produto.IdCategoria,
+            nomeCategoria = produto.Categoria?.Nome,
+            preco = produto.Preco,
+            unidadesPorCaixa = produto.UnidadesPorCaixa,
+            quantidadeStock = produto.QuantidadeStock,
+            ativo = produto.Ativo
+        });
+    }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpPut("produtos/{produtoId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar produto",
+        Description = "Metodo para atualizar informações do produto"
+    )]
+    public async Task<IActionResult> UpdateProduto(int produtoId, [FromBody] UpdateProdutoModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var produto = await _context.Produtos
+            .FirstOrDefaultAsync(p => p.Id == produtoId && p.IdClinica == clinicaId.Value);
+        
+        if (produto == null)
+        {
+            return NotFound(new { message = "Produto não encontrado" });
+        }
+
+        // Verifica se a categoria existe
+        var categoriaExiste = await _context.Categorias
+            .AnyAsync(c => c.Id == model.IdCategoria);
+        
+        if (!categoriaExiste)
+        {
+            return BadRequest(new { message = "Categoria não encontrada" });
+        }
+
+        produto.Nome = model.Nome;
+        produto.IdCategoria = model.IdCategoria;
+        produto.Preco = model.Preco;
+        produto.UnidadesPorCaixa = model.UnidadesPorCaixa;
+        produto.QuantidadeStock = model.QuantidadeStock;
+
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Categoria eliminada com sucesso" });
+        return Ok(new { message = "Produto atualizado com sucesso" });
+    }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpDelete("produtos/{produtoId}")]
+    [SwaggerOperation(
+        Summary = "Desativar produto",
+        Description = "Metodo para desativar um produto"
+    )]
+    public async Task<IActionResult> DeleteProduto(int produtoId)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var produto = await _context.Produtos
+            .FirstOrDefaultAsync(p => p.Id == produtoId && p.IdClinica == clinicaId.Value);
+        
+        if (produto == null)
+        {
+            return NotFound(new { message = "Produto não encontrado" });
+        }
+
+        // Soft delete - desativa o produto
+        produto.Ativo = false;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Produto desativado com sucesso" });
+    }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpPatch("produtos/{produtoId}/ativo")]
+    [SwaggerOperation(
+        Summary = "Alterar estado ativo do produto",
+        Description = "Metodo para ativar ou desativar um produto"
+    )]
+    public async Task<IActionResult> UpdateAtivoProduto(int produtoId, [FromBody] UpdateAtivoProdutoModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var produto = await _context.Produtos
+            .FirstOrDefaultAsync(p => p.Id == produtoId && p.IdClinica == clinicaId.Value);
+        
+        if (produto == null)
+        {
+            return NotFound(new { message = "Produto não encontrado" });
+        }
+
+        produto.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Produto {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = produto.Ativo });
     }
 
 }
@@ -500,6 +674,16 @@ public class RegisterFuncionarioModel
     public decimal Salario { get; set; }
 }
 
+public class RegisterProdutoModel
+{
+    public string Nome { get; set; } = string.Empty;
+    public string? Especialidade { get; set; }
+    public string Telefone { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public decimal Salario { get; set; }
+}
+
 // Model para atualizar funcionário
 public class UpdateFuncionarioModel
 {
@@ -511,18 +695,28 @@ public class UpdateFuncionarioModel
     public decimal Salario { get; set; }
 }
 
-// Model para criar categoria
-public class CreateCategoriaModel
+// Model para criar produto
+public class CreateProdutoModel
 {
     public string Nome { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
-    public decimal Iva { get; set; }
+    public int IdCategoria { get; set; }
+    public decimal Preco { get; set; }
+    public int UnidadesPorCaixa { get; set; }
+    public int QuantidadeStock { get; set; } = 0;
 }
 
-// Model para atualizar categoria
-public class UpdateCategoriaModel
+// Model para atualizar produto
+public class UpdateProdutoModel
 {
     public string Nome { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
-    public decimal Iva { get; set; }
+    public int IdCategoria { get; set; }
+    public decimal Preco { get; set; }
+    public int UnidadesPorCaixa { get; set; }
+    public int QuantidadeStock { get; set; }
+}
+
+// Model para atualizar status ativo do produto
+public class UpdateAtivoProdutoModel
+{
+    public bool Ativo { get; set; }
 }

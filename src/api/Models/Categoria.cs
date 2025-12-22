@@ -22,11 +22,4 @@ public class Categoria
     [Required]
     [Column("iva")]
     public decimal Iva { get; set; }
-
-    [Required]
-    [Column("id_clinica")]
-    public int IdClinica { get; set; }
-
-    [ForeignKey("IdClinica")]
-    public Clinica? Clinica { get; set; }
 }
