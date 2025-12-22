@@ -63,15 +63,54 @@ public class ClinicasController : ControllerBase
         return clinicaIdFromToken == clinicaId;
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateClinica(int id, [FromBody] UpdateClinicaModel model)
+    [Authorize(Roles = "Clinica")]
+    [HttpGet("perfil")]
+    public async Task<IActionResult> GetClinica()
     {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
         var clinica = await _context.Clinicas
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == clinicaId.Value);
         
         if (clinica == null)
         {
-            return NotFound(new { message = "Clinica não encontrada" });
+            return NotFound(new { message = "Clínica não encontrada" });
+        }
+
+        return Ok(new
+        {
+            id = clinica.Id,
+            nome = clinica.Nome,
+            email = clinica.Email,
+            cp = clinica.Cp,
+            nif = clinica.Nif,
+            iban = clinica.Iban,
+            ativo = clinica.Ativo
+        });
+    }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpPut("perfil")]
+    public async Task<IActionResult> UpdateClinica([FromBody] UpdateClinicaModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var clinica = await _context.Clinicas
+            .FirstOrDefaultAsync(c => c.Id == clinicaId.Value);
+        
+        if (clinica == null)
+        {
+            return NotFound(new { message = "Clínica não encontrada" });
         }
 
         // Atualiza apenas CP, NIF e IBAN
@@ -81,21 +120,20 @@ public class ClinicasController : ControllerBase
         
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Clinica atualizada com sucesso" });
+        return Ok(new { message = "Clínica atualizada com sucesso" });
     }
 
     // ========== GESTÃO DE FUNCIONÁRIOS ==========
 
-    [HttpPost("{clinicaId}/funcionarios")]
-    public async Task<IActionResult> RegisterFuncionario(int clinicaId, [FromBody] RegisterFuncionarioModel model)
+    [Authorize(Roles = "Clinica")]
+    [HttpPost("funcionarios")]
+    public async Task<IActionResult> RegisterFuncionario([FromBody] RegisterFuncionarioModel model)
     {
-        // Verifica se a clínica existe
-        var clinicaExiste = await _context.Clinicas
-            .AnyAsync(c => c.Id == clinicaId);
+        var clinicaId = GetClinicaIdFromToken();
         
-        if (!clinicaExiste)
+        if (clinicaId == null || clinicaId == -1)
         {
-            return BadRequest(new { message = "Clínica não encontrada" });
+            return Unauthorized(new { message = "Token inválido" });
         }
 
         // Verifica se o email já existe
@@ -116,7 +154,7 @@ public class ClinicasController : ControllerBase
             Email = model.Email,
             Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
             Salario = model.Salario,
-            ClinicaId = clinicaId
+            ClinicaId = clinicaId.Value
         };
 
         _context.Funcionarios.Add(novoFuncionario);
@@ -131,10 +169,18 @@ public class ClinicasController : ControllerBase
         });
     }
 
-    [HttpGet("{clinicaId}/funcionarios")]
-    public async Task<IActionResult> GetFuncionariosByClinica(int clinicaId, [FromQuery] bool incluirInativos = false)
+    [Authorize(Roles = "Clinica")]
+    [HttpGet("funcionarios")]
+    public async Task<IActionResult> GetFuncionarios([FromQuery] bool incluirInativos = false)
     {
-        var query = _context.Funcionarios.Where(f => f.ClinicaId == clinicaId);
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var query = _context.Funcionarios.Where(f => f.ClinicaId == clinicaId.Value);
         
         if (!incluirInativos)
         {
@@ -157,11 +203,19 @@ public class ClinicasController : ControllerBase
         return Ok(funcionarios);
     }
 
-    [HttpGet("{clinicaId}/funcionarios/{funcionarioId}")]
-    public async Task<IActionResult> GetFuncionario(int clinicaId, int funcionarioId)
+    [Authorize(Roles = "Clinica")]
+    [HttpGet("funcionarios/{funcionarioId}")]
+    public async Task<IActionResult> GetFuncionario(int funcionarioId)
     {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
         var funcionario = await _context.Funcionarios
-            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId);
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId.Value);
         
         if (funcionario == null)
         {
@@ -176,16 +230,23 @@ public class ClinicasController : ControllerBase
             telefone = funcionario.Telefone,
             email = funcionario.Email,
             salario = funcionario.Salario,
-            clinicaId = funcionario.ClinicaId,
             ativo = funcionario.Ativo
         });
     }
 
-    [HttpPut("{clinicaId}/funcionarios/{funcionarioId}")]
-    public async Task<IActionResult> UpdateFuncionario(int clinicaId, int funcionarioId, [FromBody] UpdateFuncionarioModel model)
+    [Authorize(Roles = "Clinica")]
+    [HttpPut("funcionarios/{funcionarioId}")]
+    public async Task<IActionResult> UpdateFuncionario(int funcionarioId, [FromBody] UpdateFuncionarioModel model)
     {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
         var funcionario = await _context.Funcionarios
-            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId);
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId.Value);
         
         if (funcionario == null)
         {
@@ -221,11 +282,19 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = "Funcionário atualizado com sucesso" });
     }
 
-    [HttpDelete("{clinicaId}/funcionarios/{funcionarioId}")]
-    public async Task<IActionResult> DeleteFuncionario(int clinicaId, int funcionarioId)
+    [Authorize(Roles = "Clinica")]
+    [HttpDelete("funcionarios/{funcionarioId}")]
+    public async Task<IActionResult> DeleteFuncionario(int funcionarioId)
     {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
         var funcionario = await _context.Funcionarios
-            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId);
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId.Value);
         
         if (funcionario == null)
         {
@@ -239,11 +308,19 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = "Funcionário desativado com sucesso" });
     }
 
-    [HttpPatch("{clinicaId}/funcionarios/{funcionarioId}/ativo")]
-    public async Task<IActionResult> UpdateAtivoFuncionario(int clinicaId, int funcionarioId, [FromBody] UpdateAtivoFuncionarioModel model)
+    [Authorize(Roles = "Clinica")]
+    [HttpPatch("funcionarios/{funcionarioId}/ativo")]
+    public async Task<IActionResult> UpdateAtivoFuncionario(int funcionarioId, [FromBody] UpdateAtivoFuncionarioModel model)
     {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
         var funcionario = await _context.Funcionarios
-            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId);
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId && f.ClinicaId == clinicaId.Value);
         
         if (funcionario == null)
         {
