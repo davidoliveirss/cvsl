@@ -14,8 +14,10 @@ dist-ssr
 coverage
 *.local
 
-bin
-obj/Debug/net8.0
+src/api/bin/
+src/api/obj/
+[Oo]bj/
+[Bb]in/
 
 /cypress/videos/
 /cypress/screenshots/
