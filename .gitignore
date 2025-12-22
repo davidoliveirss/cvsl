@@ -14,8 +14,8 @@ dist-ssr
 coverage
 *.local
 
-bin/
-obj/
+src/api/bin/
+src/api/obj/
 
 /cypress/videos/
 /cypress/screenshots/
