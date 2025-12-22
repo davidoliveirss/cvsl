@@ -20,6 +20,10 @@ public class Categoria
     public string? Descricao { get; set; }
 
     [Required]
+    [Column("iva")]
+    public decimal Iva { get; set; }
+
+    [Required]
     [Column("id_clinica")]
     public int IdClinica { get; set; }
 
