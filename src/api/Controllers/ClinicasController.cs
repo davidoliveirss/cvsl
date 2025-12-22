@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -65,6 +66,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("perfil")]
+    [SwaggerOperation(
+        Summary = "Perfil clinica",
+        Description = "Com o token do login listar as defenições da clinica"
+    )]
     public async Task<IActionResult> GetClinica()
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -96,6 +101,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPut("perfil")]
+    [SwaggerOperation(
+        Summary = "Atualizar informações da clinica",
+        Description = "Metodo para atualizar as informações da clinica"
+    )]
     public async Task<IActionResult> UpdateClinica([FromBody] UpdateClinicaModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -127,6 +136,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPost("funcionarios")]
+    [SwaggerOperation(
+        Summary = "Registar funcionario",
+        Description = "Metodo para registar um funcionario na clinica que está logada"
+    )]
     public async Task<IActionResult> RegisterFuncionario([FromBody] RegisterFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -171,6 +184,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("funcionarios")]
+    [SwaggerOperation(
+        Summary = "Listar funcionarios",
+        Description = "Metodo para listar funcionarios"
+    )]
     public async Task<IActionResult> GetFuncionarios([FromQuery] bool incluirInativos = false)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -205,6 +222,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar um funcionario",
+        Description = "Metodo para pesquisar um funcionario"
+    )]
     public async Task<IActionResult> GetFuncionario(int funcionarioId)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -236,6 +257,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPut("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar funcionario",
+        Description = "Metodo para atualizar informações do funcionario"
+    )]
     public async Task<IActionResult> UpdateFuncionario(int funcionarioId, [FromBody] UpdateFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -284,6 +309,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpDelete("funcionarios/{funcionarioId}")]
+    [SwaggerOperation(
+        Summary = "Desativar funcionario",
+        Description = "Metodo para desativar funcionario"
+    )]
     public async Task<IActionResult> DeleteFuncionario(int funcionarioId)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -310,6 +339,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPatch("funcionarios/{funcionarioId}/ativo")]
+    [SwaggerOperation(
+        Summary = "Reativar funcionario",
+        Description = "Metodo para reativar funcionario"
+    )]
     public async Task<IActionResult> UpdateAtivoFuncionario(int funcionarioId, [FromBody] UpdateAtivoFuncionarioModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -337,6 +370,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPost("categorias")]
+    [SwaggerOperation(
+        Summary = "Registar categoria na clinica logada",
+        Description = "Metodo para registar uma categoria"
+    )]
     public async Task<IActionResult> CreateCategoria([FromBody] CreateCategoriaModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -369,6 +406,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("categorias")]
+    [SwaggerOperation(
+        Summary = "Listar categorias",
+        Description = "Metodo para listar categorias"
+    )]
     public async Task<IActionResult> GetCategorias()
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -394,6 +435,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar categorias",
+        Description = "Metodo para pesquisar categorias"
+    )]
     public async Task<IActionResult> GetCategoria(int categoriaId)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -422,6 +467,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpPut("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar categoria",
+        Description = "Metodo para atualizar informações de uma categoria"
+    )]
     public async Task<IActionResult> UpdateCategoria(int categoriaId, [FromBody] UpdateCategoriaModel model)
     {
         var clinicaId = GetClinicaIdFromToken();
@@ -450,6 +499,10 @@ public class ClinicasController : ControllerBase
 
     [Authorize(Roles = "Clinica")]
     [HttpDelete("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Apagar categoria",
+        Description = "Metodo para apagar uma categoria"
+    )]
     public async Task<IActionResult> DeleteCategoria(int categoriaId)
     {
         var clinicaId = GetClinicaIdFromToken();
