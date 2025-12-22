@@ -315,6 +315,124 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = $"Clínica {(model.Ativo ? "ativada" : "desativada")} com sucesso", ativo = clinica.Ativo });
     }
+
+    // ========== GESTÃO DE CATEGORIAS ==========
+
+    [HttpPost("categorias")]
+    [SwaggerOperation(
+        Summary = "Criar categoria global",
+        Description = "Metodo para criar uma categoria (disponível para todas as clínicas)"
+    )]
+    public async Task<IActionResult> CreateCategoria([FromBody] CreateCategoriaModel model)
+    {
+        var novaCategoria = new Categoria
+        {
+            Nome = model.Nome,
+            Descricao = model.Descricao,
+            Iva = model.Iva
+        };
+
+        _context.Categorias.Add(novaCategoria);
+        await _context.SaveChangesAsync();
+
+        return Ok(new 
+        {
+            message = "Categoria criada com sucesso",
+            id = novaCategoria.Id,
+            nome = novaCategoria.Nome,
+            descricao = novaCategoria.Descricao,
+            iva = novaCategoria.Iva
+        });
+    }
+
+    [HttpGet("categorias")]
+    [SwaggerOperation(
+        Summary = "Listar categorias globais",
+        Description = "Metodo para listar todas as categorias"
+    )]
+    public async Task<IActionResult> GetCategorias()
+    {
+        var categorias = await _context.Categorias
+            .Select(c => new
+            {
+                id = c.Id,
+                nome = c.Nome,
+                descricao = c.Descricao,
+                iva = c.Iva
+            })
+            .ToListAsync();
+
+        return Ok(categorias);
+    }
+
+    [HttpGet("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Pesquisar categoria",
+        Description = "Metodo para pesquisar uma categoria"
+    )]
+    public async Task<IActionResult> GetCategoria(int categoriaId)
+    {
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == categoriaId);
+        
+        if (categoria == null)
+        {
+            return NotFound(new { message = "Categoria não encontrada" });
+        }
+
+        return Ok(new
+        {
+            id = categoria.Id,
+            nome = categoria.Nome,
+            descricao = categoria.Descricao,
+            iva = categoria.Iva
+        });
+    }
+
+    [HttpPut("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar categoria",
+        Description = "Metodo para atualizar informações de uma categoria"
+    )]
+    public async Task<IActionResult> UpdateCategoria(int categoriaId, [FromBody] UpdateCategoriaModel model)
+    {
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == categoriaId);
+        
+        if (categoria == null)
+        {
+            return NotFound(new { message = "Categoria não encontrada" });
+        }
+
+        categoria.Nome = model.Nome;
+        categoria.Descricao = model.Descricao;
+        categoria.Iva = model.Iva;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Categoria atualizada com sucesso" });
+    }
+
+    [HttpDelete("categorias/{categoriaId}")]
+    [SwaggerOperation(
+        Summary = "Apagar categoria",
+        Description = "Metodo para apagar uma categoria"
+    )]
+    public async Task<IActionResult> DeleteCategoria(int categoriaId)
+    {
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == categoriaId);
+        
+        if (categoria == null)
+        {
+            return NotFound(new { message = "Categoria não encontrada" });
+        }
+
+        _context.Categorias.Remove(categoria);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Categoria eliminada com sucesso" });
+    }
 }
 
 // DTOs
@@ -350,4 +468,19 @@ public class AdminCreateDto
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string? Nivel { get; set; }
+}
+
+// Models para Categorias
+public class CreateCategoriaModel
+{
+    public string Nome { get; set; } = string.Empty;
+    public string? Descricao { get; set; }
+    public decimal Iva { get; set; }
+}
+
+public class UpdateCategoriaModel
+{
+    public string Nome { get; set; } = string.Empty;
+    public string? Descricao { get; set; }
+    public decimal Iva { get; set; }
 }

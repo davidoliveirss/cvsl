@@ -366,61 +366,17 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Funcionário {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = funcionario.Ativo });
     }
 
-    // ========== GESTÃO DE CATEGORIAS ==========
-
-    [Authorize(Roles = "Clinica")]
-    [HttpPost("categorias")]
-    [SwaggerOperation(
-        Summary = "Registar categoria na clinica logada",
-        Description = "Metodo para registar uma categoria"
-    )]
-    public async Task<IActionResult> CreateCategoria([FromBody] CreateCategoriaModel model)
-    {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var novaCategoria = new Categoria
-        {
-            Nome = model.Nome,
-            Descricao = model.Descricao,
-            Iva = model.Iva,
-            IdClinica = clinicaId.Value
-        };
-
-        _context.Categorias.Add(novaCategoria);
-        await _context.SaveChangesAsync();
-
-        return Ok(new 
-        {
-            message = "Categoria criada com sucesso",
-            id = novaCategoria.Id,
-            nome = novaCategoria.Nome,
-            descricao = novaCategoria.Descricao,
-            iva = novaCategoria.Iva
-        });
-    }
+    // ========== VISUALIZAÇÃO DE CATEGORIAS (somente leitura) ==========
 
     [Authorize(Roles = "Clinica")]
     [HttpGet("categorias")]
     [SwaggerOperation(
         Summary = "Listar categorias",
-        Description = "Metodo para listar categorias"
+        Description = "Metodo para listar categorias globais"
     )]
     public async Task<IActionResult> GetCategorias()
     {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
         var categorias = await _context.Categorias
-            .Where(c => c.IdClinica == clinicaId.Value)
             .Select(c => new
             {
                 id = c.Id,
@@ -432,100 +388,6 @@ public class ClinicasController : ControllerBase
 
         return Ok(categorias);
     }
-
-    [Authorize(Roles = "Clinica")]
-    [HttpGet("categorias/{categoriaId}")]
-    [SwaggerOperation(
-        Summary = "Pesquisar categorias",
-        Description = "Metodo para pesquisar categorias"
-    )]
-    public async Task<IActionResult> GetCategoria(int categoriaId)
-    {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
-        
-        if (categoria == null)
-        {
-            return NotFound(new { message = "Categoria não encontrada" });
-        }
-
-        return Ok(new
-        {
-            id = categoria.Id,
-            nome = categoria.Nome,
-            descricao = categoria.Descricao,
-            iva = categoria.Iva
-        });
-    }
-
-    [Authorize(Roles = "Clinica")]
-    [HttpPut("categorias/{categoriaId}")]
-    [SwaggerOperation(
-        Summary = "Atualizar categoria",
-        Description = "Metodo para atualizar informações de uma categoria"
-    )]
-    public async Task<IActionResult> UpdateCategoria(int categoriaId, [FromBody] UpdateCategoriaModel model)
-    {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
-        
-        if (categoria == null)
-        {
-            return NotFound(new { message = "Categoria não encontrada" });
-        }
-
-        categoria.Nome = model.Nome;
-        categoria.Descricao = model.Descricao;
-        categoria.Iva = model.Iva;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Categoria atualizada com sucesso" });
-    }
-
-    [Authorize(Roles = "Clinica")]
-    [HttpDelete("categorias/{categoriaId}")]
-    [SwaggerOperation(
-        Summary = "Apagar categoria",
-        Description = "Metodo para apagar uma categoria"
-    )]
-    public async Task<IActionResult> DeleteCategoria(int categoriaId)
-    {
-        var clinicaId = GetClinicaIdFromToken();
-        
-        if (clinicaId == null || clinicaId == -1)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var categoria = await _context.Categorias
-            .FirstOrDefaultAsync(c => c.Id == categoriaId && c.IdClinica == clinicaId.Value);
-        
-        if (categoria == null)
-        {
-            return NotFound(new { message = "Categoria não encontrada" });
-        }
-
-        _context.Categorias.Remove(categoria);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Categoria eliminada com sucesso" });
-    }
-
 }
 
 // Model para atualizar clínica (apenas CP, NIF e IBAN)
@@ -562,20 +424,4 @@ public class UpdateFuncionarioModel
     public string Email { get; set; } = string.Empty;
     public string? Password { get; set; }
     public decimal Salario { get; set; }
-}
-
-// Model para criar categoria
-public class CreateCategoriaModel
-{
-    public string Nome { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
-    public decimal Iva { get; set; }
-}
-
-// Model para atualizar categoria
-public class UpdateCategoriaModel
-{
-    public string Nome { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
-    public decimal Iva { get; set; }
 }
