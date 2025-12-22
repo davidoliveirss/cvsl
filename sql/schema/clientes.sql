@@ -5,5 +5,6 @@ CREATE TABLE clientes (
     morada VARCHAR(200),
     telefone VARCHAR(9) NOT NULL,
     email VARCHAR(100),
-    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE,
+    ativo BOOLEAN DEFAULT TRUE
 );

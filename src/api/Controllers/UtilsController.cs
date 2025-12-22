@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BCrypt.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -8,6 +9,10 @@ namespace api.Controllers;
 public class UtilsController : ControllerBase
 {
     [HttpPost("hash")]
+    [SwaggerOperation(
+        Summary = "Texto para hash",
+        Description = "Metodo para tranformar plain text em hash"
+    )]
     public IActionResult GenerateHash([FromBody] HashPasswordRequest request)
     {
         if (string.IsNullOrEmpty(request.Password))
@@ -26,6 +31,10 @@ public class UtilsController : ControllerBase
     }
 
     [HttpPost("verify")]
+    [SwaggerOperation(
+        Summary = "Comparar texto com hash",
+        Description = "Metodo para comparar hash com texto"
+    )]
     public IActionResult VerifyHash([FromBody] VerifyPasswordRequest request)
     {
         if (string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(request.Hash))
