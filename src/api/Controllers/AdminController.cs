@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models;
 using api.Context;
 using BCrypt.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -21,6 +22,10 @@ public class AdminController : ControllerBase
 
 
     [HttpGet("clinicas")] //pesquisas clinicas em paginas
+    [SwaggerOperation(
+        Summary = "Listar clinicas",
+        Description = "Metodo para listar clinicas, retorna em paginas"
+    )]
     public async Task<IActionResult> GetAllClinicas([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool incluirInativos = false)
     {
         var skip = (page - 1) * pageSize;
@@ -62,6 +67,10 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("clinicas/{id}")] //procurar clinica
+    [SwaggerOperation(
+        Summary = "Pesquisar uma clinicas",
+        Description = "Metodo para pesquisar apenas clinicas"
+    )]
     public async Task<IActionResult> GetClinica(int id)
     {
         var clinica = await _context.Clinicas
@@ -89,6 +98,10 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("clinicas")] //criar clinica 
+    [SwaggerOperation(
+        Summary = "Registar clinicas",
+        Description = "Metodo para registar clinicas"
+    )]
     public async Task<IActionResult> CreateClinica([FromBody] ClinicaCreateDto dto)
     {
         // Verificar se email já existe
@@ -120,6 +133,10 @@ public class AdminController : ControllerBase
     }
 
     [HttpPut("clinicas/{id}")] //alterar informacoes clinica
+    [SwaggerOperation(
+        Summary = "Atualizar clinicas",
+        Description = "Metodo para atualizar clinicas"
+    )]
     public async Task<IActionResult> UpdateClinica(int id, [FromBody] ClinicaUpdateDto dto)
     {
         var clinica = await _context.Clinicas.FindAsync(id);
@@ -158,6 +175,10 @@ public class AdminController : ControllerBase
     // ========== ESTATÍSTICAS GLOBAIS ==========
 
     [HttpGet("dashboard/stats")]
+    [SwaggerOperation(
+        Summary = "Stats da aplicacao",
+        Description = "Metodo para ver os stats da aplicacao"
+    )]
     public async Task<IActionResult> GetGlobalStats()
     {
         var totalClinicas = await _context.Clinicas.CountAsync(c => c.Ativo);
@@ -176,6 +197,10 @@ public class AdminController : ControllerBase
 
     [HttpGet("admins")]
     [Authorize(Roles = "Admin")] // Apenas super_admin deveria ver isso idealmente -- nao sei se está apenas superadmin
+    [SwaggerOperation(
+        Summary = "Pesquisar admins",
+        Description = "Metodo para pesquisar admins"
+    )]
     public async Task<IActionResult> GetAllAdmins()
     {
         var admins = await _context.Admins
@@ -194,6 +219,10 @@ public class AdminController : ControllerBase
 
     [HttpPost("admins")]
     [Authorize(Roles = "Admin")] // Apenas super_admin deveria criar
+    [SwaggerOperation(
+        Summary = "Registar admins",
+        Description = "Metodo para registar admins"
+    )]
     public async Task<IActionResult> CreateAdmin([FromBody] AdminCreateDto dto)
     {
         if (await _context.Admins.AnyAsync(a => a.Email == dto.Email))
@@ -222,6 +251,10 @@ public class AdminController : ControllerBase
     // ========== GESTÃO DE FUNCIONÁRIOS/clinicas (ADMIN) ==========
 
     [HttpDelete("funcionarios/{id}")] //endpoint para desativar funcionario
+    [SwaggerOperation(
+        Summary = "Desativar funcionarios",
+        Description = "Metodo para desativar funcionarios"
+    )]
     public async Task<IActionResult> DeleteFuncionario(int id)
     {
         var funcionario = await _context.Funcionarios.FindAsync(id);
@@ -236,6 +269,10 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("clinicas/{id}")] //endpoint para desativar clinica
+    [SwaggerOperation(
+        Summary = "Desativar clinicas",
+        Description = "Metodo para desativar clinicas"
+    )]
     public async Task<IActionResult> DeleteClinica(int id)
     {
         var clinica = await _context.Clinicas.FindAsync(id);
@@ -263,6 +300,10 @@ public class AdminController : ControllerBase
     }
 
     [HttpPatch("clinicas/{id}/ativo")] //endpoint para ativar clinica
+    [SwaggerOperation(
+        Summary = "Ativar clinicas",
+        Description = "Metodo para ativar clinicas"
+    )]
     public async Task<IActionResult> UpdateAtivoClinica(int id, [FromBody] UpdateAtivoAdminModel model)
     {
         var clinica = await _context.Clinicas.FindAsync(id);

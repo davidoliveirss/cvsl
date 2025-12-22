@@ -16,6 +16,8 @@ coverage
 
 src/api/bin/
 src/api/obj/
+[Oo]bj/
+[Bb]in/
 
 /cypress/videos/
 /cypress/screenshots/
