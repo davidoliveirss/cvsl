@@ -35,4 +35,7 @@ public class Funcionario
 
     [Column("ativo")]
     public bool Ativo { get; set; } = true;
+
+    // Navigation property
+    public Clinica? Clinica { get; set; }
 }

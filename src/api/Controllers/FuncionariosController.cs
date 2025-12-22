@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Swashbuckle.AspNetCore.Annotations;
+using BCrypt.Net;
 
 namespace api.Controllers;
 
@@ -33,6 +34,91 @@ public class FuncionariosController : ControllerBase
         }
         
         return null;
+    }
+
+    // ========== PERFIL DO FUNCIONÁRIO ==========
+
+    [Authorize(Roles = "Funcionario")]
+    [HttpGet("perfil")]
+    [SwaggerOperation(
+        Summary = "Perfil funcionário",
+        Description = "Com o token do login listar as informações do funcionário"
+    )]
+    public async Task<IActionResult> GetPerfil()
+    {
+        var funcionarioId = GetFuncionarioIdFromToken();
+        
+        if (funcionarioId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var funcionario = await _context.Funcionarios
+            .Include(f => f.Clinica)
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId.Value);
+        
+        if (funcionario == null)
+        {
+            return NotFound(new { message = "Funcionário não encontrado" });
+        }
+
+        if (funcionario.Clinica == null)
+        {
+            return StatusCode(500, new { message = "Erro: Clínica não encontrada" });
+        }
+
+        return Ok(new
+        {
+            id = funcionario.Id,
+            nome = funcionario.Nome,
+            email = funcionario.Email,
+            especialidade = funcionario.Especialidade,
+            telefone = funcionario.Telefone,
+            salario = funcionario.Salario,
+            ativo = funcionario.Ativo,
+            clinica = new
+            {
+                id = funcionario.Clinica.Id,
+                nome = funcionario.Clinica.Nome
+            }
+        });
+    }
+
+    [Authorize(Roles = "Funcionario")]
+    [HttpPut("perfil")]
+    [SwaggerOperation(
+        Summary = "Atualizar perfil do funcionário",
+        Description = "Método para atualizar informações pessoais do funcionário (telefone e password)"
+    )]
+    public async Task<IActionResult> UpdatePerfil([FromBody] UpdatePerfilFuncionarioModel model)
+    {
+        var funcionarioId = GetFuncionarioIdFromToken();
+        
+        if (funcionarioId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var funcionario = await _context.Funcionarios
+            .FirstOrDefaultAsync(f => f.Id == funcionarioId.Value);
+        
+        if (funcionario == null)
+        {
+            return NotFound(new { message = "Funcionário não encontrado" });
+        }
+
+        // Atualiza telefone
+        funcionario.Telefone = model.Telefone;
+        
+        // Atualiza password se fornecida
+        if (!string.IsNullOrEmpty(model.Password))
+        {
+            funcionario.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
+        }
+        
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Perfil atualizado com sucesso" });
     }
 
     // ========== GESTÃO DE STOCK ==========
@@ -821,4 +907,11 @@ public class UpdateAnimalModel
 public class UpdateAtivoAnimalModel
 {
     public bool Ativo { get; set; }
+}
+
+// Model para atualizar perfil do funcionário
+public class UpdatePerfilFuncionarioModel
+{
+    public string Telefone { get; set; } = string.Empty;
+    public string? Password { get; set; }
 }
