@@ -137,7 +137,7 @@ const handleLogout = () => {
 
       <div class="fixed-bottom" style="margin-bottom: 0; padding-bottom: 0;">
         <q-separator dark class="q-mb-sm" />
-        
+
         <!-- Info do utilizador -->
         <q-item v-if="authStore.user" class="q-mb-xs">
           <q-item-section avatar>
@@ -148,6 +148,15 @@ const handleLogout = () => {
             <q-item-label caption class="text-white" style="opacity: 0.7;">
               {{ authStore.isClinica ? '🏥 Clínica' : '👨‍⚕️ Funcionário' }}
             </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/status')">
+          <q-item-section avatar>
+            <q-icon name="info" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Status</q-item-label>
           </q-item-section>
         </q-item>
         
