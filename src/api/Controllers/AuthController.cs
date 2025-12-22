@@ -7,7 +7,6 @@ using api.Models;
 using api.Context;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
 
@@ -25,31 +24,26 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/clinica")]
-    [SwaggerOperation(
-        Summary = "Login clinica",
-        Description = "Metodo dar login com credenciais de clinica"
-    )]
-    public Task<IActionResult> LoginClinica([FromBody] LoginModel model)
+    public async Task<IActionResult> LoginClinica([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes sem BD
         if (model.Email == "clinica@teste.pt" && model.Password == "teste123")
         {
             var clinicaToken = GenerateJwtToken(1, "clinica@teste.pt", "Clínica Veterinária Teste", "Clinica");
             
-            return Task.FromResult<IActionResult>(Ok(new AuthResponse
+            return Ok(new AuthResponse
             {
                 Token = clinicaToken,
                 Email = "clinica@teste.pt",
                 Nome = "Clínica Veterinária Teste"
-            }));
+            });
         }
 
-        // Verificação real na BD (comentado para testes)
-        /*
+        // Verificação real na BD com hash
         var clinica = await _context.Clinicas
-            .SingleOrDefaultAsync(c => c.Email == model.Email && c.Password == model.Password);
+            .SingleOrDefaultAsync(c => c.Email == model.Email && c.Ativo);
         
-        if (clinica == null)
+        if (clinica == null || !BCrypt.Net.BCrypt.Verify(model.Password, clinica.Password))
         {
             return Unauthorized(new { message = "Email ou password inválidos" });
         }
@@ -62,16 +56,9 @@ public class AuthController : ControllerBase
             Email = clinica.Email,
             Nome = clinica.Nome
         });
-        */
-        
-        return Task.FromResult<IActionResult>(Unauthorized(new { message = "Email ou password inválidos" }));
     }
 
     [HttpPost("login/funcionario")]
-    [SwaggerOperation(
-        Summary = "Login funcionario",
-        Description = "Metodo dar login com credenciais de funcionario"
-    )]
     public async Task<IActionResult> LoginFuncionario([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes sem BD
@@ -119,10 +106,6 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/admin")]
-    [SwaggerOperation(
-        Summary = "Login admin",
-        Description = "Metodo dar login com credenciais de admin"
-    )]
     public async Task<IActionResult> LoginAdmin([FromBody] LoginModel model)
     {
         // MOCKUP DATA - Para testes
