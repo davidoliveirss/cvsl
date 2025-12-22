@@ -156,7 +156,7 @@ public class FuncionariosController : ControllerBase
         Summary = "Listar clientes",
         Description = "Metodo para listar clientes da clinica do funcionario logado"
     )]
-    public async Task<IActionResult> GetClientes([FromQuery] string? pesquisa = null)
+    public async Task<IActionResult> GetClientes([FromQuery] string? pesquisa = null, [FromQuery] bool incluirInativos = false)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
         
@@ -177,6 +177,11 @@ public class FuncionariosController : ControllerBase
 
         var query = _context.Clientes.Where(c => c.ClinicaId == funcionario.ClinicaId);
         
+        if (!incluirInativos)
+        {
+            query = query.Where(c => c.Ativo);
+        }
+        
         if (!string.IsNullOrEmpty(pesquisa))
         {
             query = query.Where(c => 
@@ -195,7 +200,8 @@ public class FuncionariosController : ControllerBase
                 nif = c.Nif,
                 morada = c.Morada,
                 telefone = c.Telefone,
-                email = c.Email
+                email = c.Email,
+                ativo = c.Ativo
             })
             .ToListAsync();
 
@@ -247,7 +253,8 @@ public class FuncionariosController : ControllerBase
             nif = cliente.Nif,
             morada = cliente.Morada,
             telefone = cliente.Telefone,
-            email = cliente.Email
+            email = cliente.Email,
+            ativo = cliente.Ativo
         });
     }
 
@@ -303,8 +310,8 @@ public class FuncionariosController : ControllerBase
     [Authorize(Roles = "Funcionario")]
     [HttpDelete("clientes/{clienteId}")]
     [SwaggerOperation(
-        Summary = "Apagar cliente",
-        Description = "Metodo para apagar um cliente"
+        Summary = "Desativar cliente",
+        Description = "Metodo para desativar um cliente"
     )]
     public async Task<IActionResult> DeleteCliente(int clienteId)
     {
@@ -338,10 +345,55 @@ public class FuncionariosController : ControllerBase
             return Forbid();
         }
 
-        _context.Clientes.Remove(cliente);
+        // Soft delete - desativa o cliente
+        cliente.Ativo = false;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Cliente eliminado com sucesso" });
+        return Ok(new { message = "Cliente desativado com sucesso" });
+    }
+
+    [Authorize(Roles = "Funcionario")]
+    [HttpPatch("clientes/{clienteId}/ativo")]
+    [SwaggerOperation(
+        Summary = "Alterar estado ativo do cliente",
+        Description = "Metodo para ativar ou desativar um cliente"
+    )]
+    public async Task<IActionResult> UpdateAtivoCliente(int clienteId, [FromBody] UpdateAtivoClienteModel model)
+    {
+        var funcionarioId = GetFuncionarioIdFromToken();
+        
+        if (funcionarioId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var funcionario = await _context.Funcionarios
+            .Where(f => f.Id == funcionarioId.Value)
+            .Select(f => new { f.ClinicaId })
+            .FirstOrDefaultAsync();
+        
+        if (funcionario == null)
+        {
+            return Unauthorized(new { message = "Funcionário não encontrado" });
+        }
+
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Id == clienteId);
+        
+        if (cliente == null)
+        {
+            return NotFound(new { message = "Cliente não encontrado" });
+        }
+
+        if (cliente.ClinicaId != funcionario.ClinicaId)
+        {
+            return Forbid();
+        }
+
+        cliente.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Cliente {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = cliente.Ativo });
     }
 }
 
@@ -368,4 +420,9 @@ public class UpdateClienteModel
     public string? Morada { get; set; }
     public string Telefone { get; set; } = string.Empty;
     public string? Email { get; set; }
+}
+
+public class UpdateAtivoClienteModel
+{
+    public bool Ativo { get; set; }
 }
