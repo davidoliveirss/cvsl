@@ -11,6 +11,7 @@ public class ClinicaDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
+    public DbSet<Produto> Produtos { get; set; }
 
     private readonly IConfiguration _config;
 
