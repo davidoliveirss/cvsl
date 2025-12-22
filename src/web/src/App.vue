@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import Sidebar from '@/components/SideBar.vue';
 import NotificationCenter from '@/components/NotificationCenter.vue';
 import packageJson from '../package.json';
@@ -8,19 +9,20 @@ import packageJson from '../package.json';
 const APP_VERSION = packageJson.version;
 
 const router = useRouter();
+const authStore = useAuthStore();
 const sideBar = ref(false);
 </script>
 
 <template>
   <q-layout>
     <!-- Sidebar -->
-    <Sidebar v-model:sideBar="sideBar" />
+    <Sidebar v-if="authStore.isAuthenticated" v-model:sideBar="sideBar" />
 
     <!-- Header -->
     <q-header elevated style="background-color: #357870;" class="text-white shadow-2">
       <q-toolbar>
         <!-- Botão para abrir/fechar a sidebar -->
-        <q-btn flat dense icon="menu" class="q-mr-sm" aria-label="Menu" @click="sideBar = !sideBar" />
+        <q-btn v-if="authStore.isAuthenticated" flat dense icon="menu" class="q-mr-sm" aria-label="Menu" @click="sideBar = !sideBar" />
 
         <q-space />
 
@@ -31,14 +33,15 @@ const sideBar = ref(false);
 
         <q-space />
 
-        <q-badge color="green" rounded class="q-mr-sm" />
-        <div class="q-mr-md">
-          Status
-        </div>
+        <template v-if="authStore.isAuthenticated">
+          <q-badge color="green" rounded class="q-mr-sm" />
+          <div class="q-mr-md">
+            Status
+          </div>
 
-
-        <notification-center />
-        <q-btn round color="grey-10" class="q-ml-sm" icon="account_circle" @click="router.push('/conta')" />
+          <notification-center />
+          <q-btn round color="grey-10" class="q-ml-sm" icon="account_circle" @click="router.push('/conta')" />
+        </template>
       </q-toolbar>
     </q-header>
 

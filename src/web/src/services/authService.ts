@@ -1,4 +1,5 @@
 const API_URL = 'http://localhost:5000/api';
+const DEFAULT_TIMEOUT = 5000; // 5 segundos
 
 interface LoginCredentials {
   email: string;
@@ -13,6 +14,33 @@ interface AuthResponse {
 
 type UserType = 'clinica' | 'funcionario' | 'admin';
 
+// Função helper para adicionar timeout ao fetch
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = DEFAULT_TIMEOUT): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    
+    if (error.name === 'AbortError') {
+      throw new Error('Servidor não está a responder. Se isto persistir contacte a equipa de TI.');
+    }
+    
+    if (error.message === 'Failed to fetch') {
+      throw new Error('Não foi possível conectar ao servidor. Se isto persistir contacte a equipa de TI.');
+    }
+    
+    throw error;
+  }
+}
+
 export const authService = {
   async login(email: string, password: string, userType: UserType = 'clinica'): Promise<AuthResponse> {
     // Escolhe endpoint baseado no tipo de utilizador
@@ -24,7 +52,7 @@ export const authService = {
       endpoint = `${API_URL}/auth/login/admin`;
     }
 
-    const response = await fetch(endpoint, {
+    const response = await fetchWithTimeout(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +127,7 @@ export const authService = {
   },
 
   // Função helper para fazer requests autenticadas
-  async fetchWithAuth(url: string, options: RequestInit = {}) {
+  async fetchWithAuth(url: string, options: RequestInit = {}, timeout = DEFAULT_TIMEOUT) {
     const token = this.getToken();
     
     const headers = {
@@ -108,10 +136,10 @@ export const authService = {
       ...options.headers,
     };
 
-    const response = await fetch(`${API_URL}${url}`, {
+    const response = await fetchWithTimeout(`${API_URL}${url}`, {
       ...options,
       headers,
-    });
+    }, timeout);
 
     // Se retornar 401, fazer logout automático
     if (response.status === 401) {
