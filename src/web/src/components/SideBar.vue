@@ -13,7 +13,7 @@ const handleLogout = () => {
     authStore.logout();
     $q.notify({
         type: 'positive',
-        message: 'Logout efetuado com sucesso!'
+        message: 'Logout! Bom descanso'
     });
     router.push('/login');
 };
