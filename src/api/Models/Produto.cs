@@ -40,4 +40,7 @@ public class Produto
 
     [ForeignKey("IdClinica")]
     public Clinica? Clinica { get; set; }
+
+    [Column("ativo")]
+    public bool Ativo { get; set; } = true;
 }

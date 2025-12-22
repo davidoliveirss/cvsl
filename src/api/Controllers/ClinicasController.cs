@@ -468,7 +468,7 @@ public class ClinicasController : ControllerBase
         Summary = "Listar produtos",
         Description = "Metodo para listar produtos da clinica logada"
     )]
-    public async Task<IActionResult> GetProdutos([FromQuery] int? categoriaId = null)
+    public async Task<IActionResult> GetProdutos([FromQuery] int? categoriaId = null, [FromQuery] bool incluirInativos = false)
     {
         var clinicaId = GetClinicaIdFromToken();
         
@@ -480,6 +480,11 @@ public class ClinicasController : ControllerBase
         var query = _context.Produtos
             .Include(p => p.Categoria)
             .Where(p => p.IdClinica == clinicaId.Value);
+        
+        if (!incluirInativos)
+        {
+            query = query.Where(p => p.Ativo);
+        }
         
         if (categoriaId.HasValue)
         {
@@ -495,7 +500,8 @@ public class ClinicasController : ControllerBase
                 nomeCategoria = p.Categoria!.Nome,
                 preco = p.Preco,
                 unidadesPorCaixa = p.UnidadesPorCaixa,
-                quantidadeStock = p.QuantidadeStock
+                quantidadeStock = p.QuantidadeStock,
+                ativo = p.Ativo
             })
             .ToListAsync();
 
@@ -534,7 +540,8 @@ public class ClinicasController : ControllerBase
             nomeCategoria = produto.Categoria?.Nome,
             preco = produto.Preco,
             unidadesPorCaixa = produto.UnidadesPorCaixa,
-            quantidadeStock = produto.QuantidadeStock
+            quantidadeStock = produto.QuantidadeStock,
+            ativo = produto.Ativo
         });
     }
 
@@ -584,8 +591,8 @@ public class ClinicasController : ControllerBase
     [Authorize(Roles = "Clinica")]
     [HttpDelete("produtos/{produtoId}")]
     [SwaggerOperation(
-        Summary = "Apagar produto",
-        Description = "Metodo para apagar um produto"
+        Summary = "Desativar produto",
+        Description = "Metodo para desativar um produto"
     )]
     public async Task<IActionResult> DeleteProduto(int produtoId)
     {
@@ -604,11 +611,42 @@ public class ClinicasController : ControllerBase
             return NotFound(new { message = "Produto não encontrado" });
         }
 
-        _context.Produtos.Remove(produto);
+        // Soft delete - desativa o produto
+        produto.Ativo = false;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Produto eliminado com sucesso" });
+        return Ok(new { message = "Produto desativado com sucesso" });
     }
+
+    [Authorize(Roles = "Clinica")]
+    [HttpPatch("produtos/{produtoId}/ativo")]
+    [SwaggerOperation(
+        Summary = "Alterar estado ativo do produto",
+        Description = "Metodo para ativar ou desativar um produto"
+    )]
+    public async Task<IActionResult> UpdateAtivoProduto(int produtoId, [FromBody] UpdateAtivoProdutoModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null || clinicaId == -1)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var produto = await _context.Produtos
+            .FirstOrDefaultAsync(p => p.Id == produtoId && p.IdClinica == clinicaId.Value);
+        
+        if (produto == null)
+        {
+            return NotFound(new { message = "Produto não encontrado" });
+        }
+
+        produto.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Produto {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = produto.Ativo });
+    }
+
 }
 
 // Model para atualizar clínica (apenas CP, NIF e IBAN)
@@ -675,4 +713,10 @@ public class UpdateProdutoModel
     public decimal Preco { get; set; }
     public int UnidadesPorCaixa { get; set; }
     public int QuantidadeStock { get; set; }
+}
+
+// Model para atualizar status ativo do produto
+public class UpdateAtivoProdutoModel
+{
+    public bool Ativo { get; set; }
 }
