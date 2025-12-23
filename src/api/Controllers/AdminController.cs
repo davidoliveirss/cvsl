@@ -108,6 +108,9 @@ public class AdminController : ControllerBase
         if (await _context.Clinicas.AnyAsync(c => c.Email == dto.Email))
             return BadRequest(new { message = "Email já está em uso" });
 
+        dto.Iban = dto.Iban?.Replace(" ", "");
+        dto.Nif = dto.Nif?.Replace(" ", ""); // também por segurança
+
         var clinica = new Clinica
         {
             Nome = dto.Nome,
