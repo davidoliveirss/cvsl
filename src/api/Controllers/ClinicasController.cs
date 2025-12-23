@@ -122,6 +122,9 @@ public class ClinicasController : ControllerBase
             return NotFound(new { message = "Clínica não encontrada" });
         }
 
+        model.Iban = model.Iban?.Replace(" ", "");
+        model.Nif = model.Nif?.Replace(" ", "");
+
         // Atualiza apenas CP, NIF e IBAN
         clinica.Cp = model.Cp;
         clinica.Nif = model.Nif;
