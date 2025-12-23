@@ -242,7 +242,7 @@ public class FuncionariosController : ControllerBase
         Summary = "Listar clientes",
         Description = "Metodo para listar clientes da clinica do funcionario logado"
     )]
-    public async Task<IActionResult> GetClientes([FromQuery] string? pesquisa = null, [FromQuery] bool incluirInativos = false)
+    public async Task<IActionResult> GetClientes([FromQuery] bool incluirInativos = false)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
         
@@ -268,20 +268,10 @@ public class FuncionariosController : ControllerBase
             query = query.Where(c => c.Ativo);
         }
         
-        if (!string.IsNullOrEmpty(pesquisa))
-        {
-            query = query.Where(c => 
-                c.Nome.Contains(pesquisa) || 
-                c.Telefone.Contains(pesquisa) ||
-                (c.Email != null && c.Email.Contains(pesquisa)) ||
-                (c.Nif != null && c.Nif.Contains(pesquisa))
-            );
-        }
-        
         var clientes = await query
             .Select(c => new
             {
-                id = c.Id,
+                id = c.id,
                 nome = c.Nome,
                 nif = c.Nif,
                 morada = c.Morada,
