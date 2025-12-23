@@ -213,6 +213,9 @@ onMounted(() => {
                                 label="NIF" 
                                 color="grey-10"
                                 class="q-mt-md"
+                                type="text"
+                                mask="#########"
+                                fill-mask
                             />
                             
                             <q-input 
@@ -221,6 +224,9 @@ onMounted(() => {
                                 label="IBAN" 
                                 color="grey-10"
                                 class="q-mt-md"
+                                prefix="PT50"
+                                mask="## ## #### #### #### #### ##"
+                                fill-mask
                             />
 
                         </template>
