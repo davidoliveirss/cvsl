@@ -10,12 +10,13 @@ export interface Cliente {
   telefone: string;
   email?: string;
   clinicaId: number;
+  ativo?: boolean;
 }
 
 export const clientesService = {
   // GET /api/clientes - Listar todos
   async getAll(): Promise<Cliente[]> {
-    const response = await authService.fetchWithAuth('/clientes');
+    const response = await authService.fetchWithAuth('/Funcionarios/clientes');
     
     if (!response.ok) {
       throw new Error('Erro ao carregar clientes');
