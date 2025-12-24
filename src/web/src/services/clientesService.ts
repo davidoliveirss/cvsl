@@ -100,8 +100,8 @@ export const clientesService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': `/Clinicas/clientes/${id}`,
-      'funcionario': `/Funcionarios/clientes/${id}`,
+      'clinica': `/Clinicas/clientes/`,
+      'funcionario': `/Funcionarios/clientes/`,
     };
 
     const endpoint = `${endpointMap[userType]}?clienteId=${id}`;
