@@ -429,7 +429,7 @@ public class FuncionariosController : ControllerBase
     }
 
     [Authorize(Roles = "Funcionario")]
-    [HttpPatch("clientes/{clienteId}/ativo")]
+    [HttpPatch("clientes/{clienteId}")]
     [SwaggerOperation(
         Summary = "Alterar estado ativo do cliente",
         Description = "Metodo para ativar ou desativar um cliente"
