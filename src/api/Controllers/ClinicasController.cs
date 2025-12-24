@@ -407,6 +407,40 @@ public class ClinicasController : ControllerBase
         return Ok(clientes);
     }
 
+    [Authorize(Roles = "Funcionario")]
+    [HttpPatch("clientes/{clienteId}")]
+    [SwaggerOperation(
+        Summary = "Alterar estado ativo do cliente",
+        Description = "Metodo para ativar ou desativar um cliente"
+    )]
+    public async Task<IActionResult> UpdateAtivoCliente(int clienteId, [FromBody] UpdateAtivoClienteModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Id == clienteId);
+        
+        if (cliente == null)
+        {
+            return NotFound(new { message = "Cliente não encontrado" });
+        }
+
+        if (cliente.ClinicaId != clinicaId)
+        {
+            return Forbid();
+        }
+
+        cliente.Ativo = model.Ativo;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = $"Cliente {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = cliente.Ativo });
+    }
+
     // ========== VISUALIZAÇÃO DE CATEGORIAS (somente leitura) ==========
 
     [Authorize(Roles = "Clinica")]
