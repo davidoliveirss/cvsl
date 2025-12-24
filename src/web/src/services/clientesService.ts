@@ -15,15 +15,15 @@ export interface Cliente {
 
 export const clientesService = {
   // GET /api/clientes - Listar todos
-  async getAll(): Promise<Cliente[]> {
-    const response = await authService.fetchWithAuth('/Funcionarios/clientes');
-    
-    if (!response.ok) {
-      throw new Error('Erro ao carregar clientes');
-    }
-    
-    return response.json();
-  },
+  async getAll(incluirInativos: boolean = false): Promise<Cliente[]> {
+      const response = await authService.fetchWithAuth(`/Clinicas/clientes?incluirInativos=${incluirInativos}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao carregar clientes');
+      }
+      
+      return response.json();
+    },
 
   // GET /api/clientes/:id - Buscar por ID
   async getById(id: number): Promise<Cliente> {
