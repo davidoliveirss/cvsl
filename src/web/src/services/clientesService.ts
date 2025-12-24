@@ -79,7 +79,21 @@ export const clientesService = {
 
   // PUT /api/clientes/:id - Atualizar
   async update(id: number, cliente: Cliente): Promise<Cliente> {
-    const response = await authService.fetchWithAuth(`/clientes/${id}`, {
+    const userType = authService.getUserType();
+  
+    if (!userType) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const endpointMap: Record<string, string> = {
+      'clinica': `/Clinicas/clientes/${id}`, 
+      'funcionario': `/Funcionarios/clientes/${id}`,
+    };
+
+    const endpoint = endpointMap[userType] || `/clientes/${id}`;
+    
+
+    const response = await authService.fetchWithAuth(endpoint, {
       method: 'PUT',
       body: JSON.stringify({ ...cliente, id })
     });
