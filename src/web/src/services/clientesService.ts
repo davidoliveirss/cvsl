@@ -16,8 +16,22 @@ export interface Cliente {
 export const clientesService = {
   // GET /api/clientes - Listar todos
   async getAll(incluirInativos: boolean = false): Promise<Cliente[]> {
-      const response = await authService.fetchWithAuth(`/Clinicas/clientes?incluirInativos=${incluirInativos}`);
-      
+
+      const userType = authService.getUserType();
+
+      if (!userType) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const endpointMap: Record<string, string> = {
+      'clinica': '/Clinicas/clientes',
+      'funcionario': '/Funcionarios/clientes'
+      };
+
+      const endpoint = `${endpointMap[userType] || '/Gerencia/clientes'}?incluirInativos=${incluirInativos}`;
+
+      const response = await authService.fetchWithAuth(endpoint);
+
       if (!response.ok) {
         throw new Error('Erro ao carregar clientes');
       }
@@ -36,18 +50,30 @@ export const clientesService = {
     return response.json();
   },
 
-  // POST /api/clientes - Criar novo
   async create(cliente: Cliente): Promise<Cliente> {
-    const response = await authService.fetchWithAuth('/clientes', {
+    const userType = authService.getUserType();
+  
+    if (!userType) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const endpointMap: Record<string, string> = {
+      'clinica': '/Clinicas/clientes',
+      'funcionario': '/Funcionarios/clientes',
+    };
+
+    const endpoint = endpointMap[userType] || '/clientes';
+  
+    const response = await authService.fetchWithAuth(endpoint, {
       method: 'POST',
       body: JSON.stringify(cliente)
     });
-    
+  
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erro ao criar cliente');
     }
-    
+  
     return response.json();
   },
 
