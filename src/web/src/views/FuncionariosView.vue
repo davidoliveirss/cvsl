@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { funcionariosService, type Funcionario } from '@/services/funcionariosService';
 import { authService } from '@/services/authService';
+import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
 
 const $q = useQuasar();
 
@@ -153,10 +154,10 @@ async function toggleEstadoFuncionario(funcionario: Funcionario) {
     try {
       if (funcionario.ativo) {
         // Se está ativo, usa DELETE para desativar
-        await funcionariosService.delete(funcionario.id!);
+        await funcionariosService.updateStatus(funcionario.id!, false);
       } else {
         // Se está inativo, usa PATCH para reativar
-        await funcionariosService.updateAtivo(funcionario.id!, true);
+        await funcionariosService.updateStatus(funcionario.id!, true);
       }
       
       $q.notify({

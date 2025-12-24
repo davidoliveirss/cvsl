@@ -98,10 +98,10 @@ export const funcionariosService = {
   },
 
   // PATCH /api/Clinicas/funcionarios/:id/ativo - Alterar estado ativo
-  async updateAtivo(id: number, ativo: boolean): Promise<void> {
+  async updateStatus(id: number, status: boolean): Promise<void> {
     const response = await authService.fetchWithAuth(`/Clinicas/funcionarios/${id}/ativo`, {
       method: 'PATCH',
-      body: JSON.stringify({ ativo })
+      body: JSON.stringify({ status })
     });
     
     if (!response.ok) {

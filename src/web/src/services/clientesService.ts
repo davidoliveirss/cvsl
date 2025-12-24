@@ -92,14 +92,27 @@ export const clientesService = {
     return response.json();
   },
 
-  // DELETE /api/clientes/:id - Remover
-  async delete(id: number): Promise<void> {
-    const response = await authService.fetchWithAuth(`/clientes/${id}`, {
-      method: 'DELETE'
+  async updateStatus(id: number, status: boolean): Promise<void> {
+    const userType = authService.getUserType();
+  
+    if (!userType) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const endpointMap: Record<string, string> = {
+      'clinica': `/Clinicas/clientes/${id}`,
+      'funcionario': `/Funcionarios/clientes/${id}`,
+    };
+
+    const endpoint = endpointMap[userType] || '/clientes';
+
+    const response = await authService.fetchWithAuth(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
     });
     
     if (!response.ok) {
-      throw new Error('Erro ao remover cliente');
+      throw new Error('Erro ao alterar estado do cliente');
     }
-  }
+  },
 };

@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { clientesService, type Cliente } from '@/services/clientesService';
 import { authService } from '@/services/authService';
+import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
 
 const $q = useQuasar();
 
@@ -10,6 +11,7 @@ const clientes = ref<Cliente[]>([]);
 const loading = ref(false);
 const dialog = ref(false);
 const editMode = ref(false);
+const incluirInativos = ref(false);
 
 // Obtém o ID da clínica do token JWT (funcionário pertence a uma clínica)
 const clinicaId = computed(() => {
@@ -47,7 +49,7 @@ const columns = [
 async function loadClientes() {
   loading.value = true;
   try {
-    clientes.value = await clientesService.getAll();
+    clientes.value = await clientesService.getAll(incluirInativos.value);
   } catch (error: any) {
     $q.notify({
       type: 'negative',
@@ -104,24 +106,42 @@ async function saveCliente() {
   }
 }
 
-async function deleteCliente(id: number) {
+async function toggleEstadoCliente(cliente: Cliente) {
+  const novoEstado = !cliente.ativo;
+  const acao = novoEstado ? 'ativar' : 'desativar';
+  
   $q.dialog({
-    title: 'Confirmar',
-    message: 'Tem certeza que deseja remover este cliente?',
-    cancel: true,
+    title: 'Confirmar alteração de estado',
+    message: `Tem certeza que deseja ${acao} este funcionário? ${novoEstado ? 'O funcionário poderá fazer login e ter acesso ao sistema.' : 'O funcionário não poderá fazer login nem ter acesso ao sistema.'}`,
+    cancel: {
+      label: 'Cancelar',
+      flat: true,
+      color: 'grey-7'
+    },
+    ok: {
+      label: 'Confirmar',
+      color: novoEstado ? 'positive' : 'warning'
+    },
     persistent: true
   }).onOk(async () => {
     try {
-      await clientesService.delete(id);
+      if (cliente.ativo) {
+        // Se está ativo, usa DELETE para desativar
+        await clientesService.updateStatus(cliente.id!, false);
+      } else {
+        // Se está inativo, usa PATCH para reativar
+        await clientesService.updateStatus(cliente.id!, true);
+      }
+      
       $q.notify({
         type: 'positive',
-        message: 'Cliente removido com sucesso!'
+        message: `Cliente ${novoEstado ? 'ativado' : 'desativado'} com sucesso!`
       });
       await loadClientes();
     } catch (error: any) {
       $q.notify({
         type: 'negative',
-        message: error.message || 'Erro ao remover cliente'
+        message: error.message || 'Erro ao alterar estado do cliente'
       });
     }
   });
@@ -142,7 +162,12 @@ onMounted(() => {
             Gerir clientes da clínica
           </div>
         </div>
-        <div class="col-auto">
+        <div class="col-auto row items-center q-gutter-md">
+          <q-toggle
+            v-model="incluirInativos"
+            label="Mostrar inativos"
+            @update:model-value="loadClientes"
+          />
           <q-btn
             color="primary"
             label="Novo Cliente"
@@ -176,11 +201,11 @@ onMounted(() => {
               flat
               round
               dense
-              color="negative"
-              icon="delete"
-              @click="deleteCliente(props.row.id)"
+              :color="props.row.ativo ? 'negative' : 'positive'"
+              :icon="props.row.ativo ? 'block' : 'check_circle'"
+              @click="toggleEstadoCliente(props.row)"
             >
-              <q-tooltip>Remover</q-tooltip>
+              <q-tooltip>{{ props.row.ativo ? 'Desativar' : 'Ativar' }}</q-tooltip>
             </q-btn>
           </q-td>
         </template>
