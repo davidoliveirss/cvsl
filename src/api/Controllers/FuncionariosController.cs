@@ -384,51 +384,6 @@ public class FuncionariosController : ControllerBase
     }
 
     [Authorize(Roles = "Funcionario")]
-    [HttpDelete("clientes/{clienteId}")]
-    [SwaggerOperation(
-        Summary = "Desativar cliente",
-        Description = "Metodo para desativar um cliente"
-    )]
-    public async Task<IActionResult> DeleteCliente(int clienteId)
-    {
-        var funcionarioId = GetFuncionarioIdFromToken();
-        
-        if (funcionarioId == null)
-        {
-            return Unauthorized(new { message = "Token inválido" });
-        }
-
-        var funcionario = await _context.Funcionarios
-            .Where(f => f.Id == funcionarioId.Value)
-            .Select(f => new { f.ClinicaId })
-            .FirstOrDefaultAsync();
-        
-        if (funcionario == null)
-        {
-            return Unauthorized(new { message = "Funcionário não encontrado" });
-        }
-
-        var cliente = await _context.Clientes
-            .FirstOrDefaultAsync(c => c.Id == clienteId);
-        
-        if (cliente == null)
-        {
-            return NotFound(new { message = "Cliente não encontrado" });
-        }
-
-        if (cliente.ClinicaId != funcionario.ClinicaId)
-        {
-            return Forbid();
-        }
-
-        // Soft delete - desativa o cliente
-        cliente.Ativo = false;
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Cliente desativado com sucesso" });
-    }
-
-    [Authorize(Roles = "Funcionario")]
     [HttpPatch("clientes/{clienteId}")]
     [SwaggerOperation(
         Summary = "Alterar estado ativo do cliente",

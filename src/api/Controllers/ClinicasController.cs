@@ -441,6 +441,45 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Cliente {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = cliente.Ativo });
     }
 
+    [Authorize(Roles = "Funcionario")]
+    [HttpPut("clientes/{clienteId}")]
+    [SwaggerOperation(
+        Summary = "Atualizar cliente",
+        Description = "Metodo para atualizar informações do cliente"
+    )]
+    public async Task<IActionResult> UpdateCliente(int clienteId, [FromBody] UpdateClienteModel model)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Id == clinicaId);
+        
+        if (cliente == null)
+        {
+            return NotFound(new { message = "Cliente não encontrado" });
+        }
+
+        if (cliente.ClinicaId != clinicaId)
+        {
+            return Forbid();
+        }
+
+        cliente.Nome = model.Nome;
+        cliente.Nif = model.Nif;
+        cliente.Morada = model.Morada;
+        cliente.Telefone = model.Telefone;
+        cliente.Email = model.Email;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Cliente atualizado com sucesso" });
+    }
+
     // ========== VISUALIZAÇÃO DE CATEGORIAS (somente leitura) ==========
 
     [Authorize(Roles = "Clinica")]
