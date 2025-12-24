@@ -407,7 +407,7 @@ public class ClinicasController : ControllerBase
         return Ok(clientes);
     }
 
-    [Authorize(Roles = "Funcionario")]
+    [Authorize(Roles = "Clinica")]
     [HttpPatch("clientes/{clienteId}")]
     [SwaggerOperation(
         Summary = "Alterar estado ativo do cliente",
