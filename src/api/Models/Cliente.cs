@@ -7,21 +7,27 @@ namespace api.Models;
 public class Cliente
 {
     [Key]
+    [Column("id")]
     public int Id { get; set; }
 
     // NOT NULL in SQL
+    [Column("nome")]
     public string Nome { get; set; } = string.Empty;
 
     // NIF is optional (VARCHAR(9))
+    [Column("nif")]
     public string? Nif { get; set; }
 
     // Morada is optional (VARCHAR(200))
+    [Column("morada")]
     public string? Morada { get; set; }
 
     // NOT NULL in SQL
+    [Column("telefone")]
     public string Telefone { get; set; } = string.Empty;
 
     // Optional email
+    [Column("email")]
     public string? Email { get; set; }
 
     // Foreign key to Clinicas(id) - required in SQL
