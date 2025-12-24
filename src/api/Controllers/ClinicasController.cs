@@ -369,6 +369,44 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Funcionário {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = funcionario.Ativo });
     }
 
+    [Authorize(Roles = "Clinica")]
+    [HttpGet("clientes")]
+    [SwaggerOperation(
+        Summary = "Listar clientes",
+        Description = "Metodo para listar clientes da clinica do funcionario logado"
+    )]
+    public async Task<IActionResult> GetClientes([FromQuery] bool incluirInativos = false)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var query = _context.Clientes.Where(c => c.ClinicaId == clinicaId);
+        
+        if (!incluirInativos)
+        {
+            query = query.Where(c => c.Ativo);
+        }
+        
+        var clientes = await query
+            .Select(c => new
+            {
+                id = c.Id,
+                nome = c.Nome,
+                nif = c.Nif,
+                morada = c.Morada,
+                telefone = c.Telefone,
+                email = c.Email,
+                ativo = c.Ativo
+            })
+            .ToListAsync();
+
+        return Ok(clientes);
+    }
+
     // ========== VISUALIZAÇÃO DE CATEGORIAS (somente leitura) ==========
 
     [Authorize(Roles = "Clinica")]
