@@ -441,7 +441,7 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Cliente {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = cliente.Ativo });
     }
 
-    [Authorize(Roles = "Funcionario")]
+    [Authorize(Roles = "Clinica")]
     [HttpPut("clientes/{clienteId}")]
     [SwaggerOperation(
         Summary = "Atualizar cliente",
