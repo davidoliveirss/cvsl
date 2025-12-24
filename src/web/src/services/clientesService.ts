@@ -92,7 +92,7 @@ export const clientesService = {
     return response.json();
   },
 
-  async updateStatus(id: number, status: boolean): Promise<void> {
+  async updateStatus(id: number, ativo: boolean): Promise<void> {
     const userType = authService.getUserType();
   
     if (!userType) {
@@ -108,7 +108,7 @@ export const clientesService = {
 
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'PATCH',
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ ativo })
     });
     
     if (!response.ok) {
