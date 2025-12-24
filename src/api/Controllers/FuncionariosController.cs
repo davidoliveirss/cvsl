@@ -271,7 +271,7 @@ public class FuncionariosController : ControllerBase
         var clientes = await query
             .Select(c => new
             {
-                id = c.id,
+                id = c.Id,
                 nome = c.Nome,
                 nif = c.Nif,
                 morada = c.Morada,
