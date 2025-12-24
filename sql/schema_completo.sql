@@ -91,7 +91,8 @@ CREATE TABLE clientes (
     morada VARCHAR(200),
     telefone VARCHAR(9) NOT NULL,
     email VARCHAR(100),
-    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE,
+    ativo BOOLEAN DEFAULT TRUE
 );
 
 -- Funcionários/Veterinários (depende de clinicas)
@@ -127,7 +128,8 @@ CREATE TABLE produtos (
     preco DECIMAL(10,2) NOT NULL,
     unidades_por_caixa INT NOT NULL,
     quantidade_stock INT NOT NULL DEFAULT 0,
-    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE,
+    ativo BOOLEAN DEFAULT TRUE
 );
 
 -- Serviços (depende de clinicas)
