@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { clientesService, type Cliente } from '@/services/clientesService';
+import { authService } from '@/services/authService';
 
 const $q = useQuasar();
 
@@ -10,13 +11,28 @@ const loading = ref(false);
 const dialog = ref(false);
 const editMode = ref(false);
 
+// Obtém o ID da clínica do token JWT (funcionário pertence a uma clínica)
+const clinicaId = computed(() => {
+  const token = authService.getToken();
+  if (!token) return 1; // Fallback
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Para funcionários, pode vir de uma claim específica da clínica
+    return parseInt(payload.clinicaid || payload.nameid || payload.sub || '1');
+  } catch {
+    return 1; // Fallback
+  }
+});
+
 const formData = ref<Cliente>({
   nome: '',
   telefone: '',
   email: '',
   nif: '',
   morada: '',
-  clinicaId: 1 // TODO: obter da clínica logada
+  ativo: true,
+  clinicaId: clinicaId.value
 });
 
 const columns = [
@@ -24,6 +40,7 @@ const columns = [
   { name: 'telefone', label: 'Telefone', field: 'telefone', align: 'left' as const },
   { name: 'email', label: 'Email', field: 'email', align: 'left' as const },
   { name: 'nif', label: 'NIF', field: 'nif', align: 'left' as const },
+  { name: 'morada', label: 'Morada', field: 'morada', align: 'left' as const },
   { name: 'actions', label: 'Ações', field: 'id', align: 'center' as const }
 ];
 
@@ -49,7 +66,8 @@ function openNewDialog() {
     email: '',
     nif: '',
     morada: '',
-    clinicaId: 1
+    ativo: true,
+    clinicaId: clinicaId.value
   };
   dialog.value = true;
 }
@@ -176,7 +194,6 @@ onMounted(() => {
       </q-table>
     </div>
 
-    <!-- Dialog Criar/Editar -->
     <q-dialog v-model="dialog" persistent>
       <q-card style="min-width: 450px">
         <q-card-section>

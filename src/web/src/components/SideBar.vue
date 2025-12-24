@@ -9,31 +9,15 @@ const router = useRouter();
 const authStore = useAuthStore();
 const $q = useQuasar();
 
-function handleLogout() {
-  $q.dialog({
-    title: 'Confirmar logout',
-    message: 'Tem certeza que deseja sair?',
-    cancel: {
-      label: 'Cancelar',
-      color: 'grey-7',
-      flat: true
-    },
-    ok: {
-      label: 'Sair',
-      color: 'negative',
-      unelevated: true
-    },
-    persistent: true
-  }).onOk(() => {
+const handleLogout = () => {
     authStore.logout();
     $q.notify({
-      type: 'info',
-      message: 'Sessão encerrada com sucesso',
-      position: 'top'
+        type: 'positive',
+        message: 'Logout! Bom descanso'
     });
     router.push('/login');
-  });
-}
+};
+
 </script>
 
 <template>
@@ -55,45 +39,114 @@ function handleLogout() {
         </q-item-section>
       </q-item>
 
-      <q-item clickable v-ripple @click="router.push('/clientes')">
-        <q-item-section avatar>
-          <q-icon name="people" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Clientes</q-item-label>
-        </q-item-section>
-      </q-item>
+      <!-- Menu para Clínica -->
+      <template v-if="authStore.isClinica">
+        <q-item clickable v-ripple @click="router.push('/clientes')">
+          <q-item-section avatar>
+            <q-icon name="people" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Clientes</q-item-label>
+          </q-item-section>
+        </q-item>
 
-      <q-item clickable v-ripple @click="router.push('/resumos')">
-        <q-item-section avatar>
-          <q-icon name="pets" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Animais</q-item-label>
-        </q-item-section>
-      </q-item>
+        <q-item clickable v-ripple @click="router.push('/resumos')">
+          <q-item-section avatar>
+            <q-icon name="pets" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Animais</q-item-label>
+          </q-item-section>
+        </q-item>
 
-      <q-item clickable v-ripple @click="router.push('/resumos')">
-        <q-item-section avatar>
-          <q-icon name="event" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Consultas</q-item-label>
-        </q-item-section>
-      </q-item>
+        <q-item clickable v-ripple @click="router.push('/funcionarios')">
+          <q-item-section avatar>
+            <q-icon name="person" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Funcionarios</q-item-label>
+          </q-item-section>
+        </q-item>
 
-      <q-item clickable v-ripple @click="router.push('/avaliar')">
-        <q-item-section avatar>
-          <q-icon name="receipt" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Faturas</q-item-label>
-        </q-item-section>
-      </q-item>
+        <q-item clickable v-ripple @click="router.push('/resumos')">
+          <q-item-section avatar>
+            <q-icon name="event" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Consultas</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/avaliar')">
+          <q-item-section avatar>
+            <q-icon name="receipt" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Faturas</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/relatorios')">
+          <q-item-section avatar>
+            <q-icon name="analytics" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Relatórios</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/configuracoes')">
+          <q-item-section avatar>
+            <q-icon name="settings" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Configurações</q-item-label>
+          </q-item-section>
+        </q-item>
+      </template>
+
+      <!-- Menu para Funcionário -->
+      <template v-if="authStore.isFuncionario">
+        <q-item clickable v-ripple @click="router.push('/clientes')">
+          <q-item-section avatar>
+            <q-icon name="people" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Clientes</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/resumos')">
+          <q-item-section avatar>
+            <q-icon name="pets" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Animais</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/consultas')">
+          <q-item-section avatar>
+            <q-icon name="event" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Consultas</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/agenda')">
+          <q-item-section avatar>
+            <q-icon name="calendar_today" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Agenda</q-item-label>
+          </q-item-section>
+        </q-item>
+      </template>
 
       <div class="fixed-bottom" style="margin-bottom: 0; padding-bottom: 0;">
         <q-separator dark class="q-mb-sm" />
-        
+
         <!-- Info do utilizador -->
         <q-item v-if="authStore.user" class="q-mb-xs">
           <q-item-section avatar>
@@ -104,6 +157,15 @@ function handleLogout() {
             <q-item-label caption class="text-white" style="opacity: 0.7;">
               {{ authStore.isClinica ? '🏥 Clínica' : '👨‍⚕️ Funcionário' }}
             </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="router.push('/status')">
+          <q-item-section avatar>
+            <q-icon name="info" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Status</q-item-label>
           </q-item-section>
         </q-item>
         

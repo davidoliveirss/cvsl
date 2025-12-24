@@ -22,6 +22,7 @@ const confirmPassword = ref('');
 const cp = ref('');
 const nif = ref('');
 const iban = ref('');
+const salario = ref('');
 
 const loadProfile = async () => {
     loading.value = true;
@@ -35,6 +36,7 @@ const loadProfile = async () => {
             cp.value = data.cp || '';
             nif.value = data.nif || '';
             iban.value = data.iban || '';
+            salario.value = data.salario || '';
         } else if (authStore.isFuncionario) {
             const data = await funcionariosService.getPerfil();
             profileData.value = data;
@@ -69,7 +71,8 @@ const onSubmit = async () => {
                 body: JSON.stringify({
                     cp: cp.value,
                     nif: nif.value,
-                    iban: iban.value
+                    iban: iban.value,
+                    salario: salario.value
                 })
             });
             
@@ -108,15 +111,6 @@ const onReset = () => {
     loadProfile();
     password.value = '';
     confirmPassword.value = '';
-};
-
-const handleLogout = () => {
-    authStore.logout();
-    $q.notify({
-        type: 'positive',
-        message: 'Logout efetuado com sucesso!'
-    });
-    router.push('/login');
 };
 
 onMounted(() => {
@@ -184,6 +178,16 @@ onMounted(() => {
                                 color="grey-10"
                                 class="q-mt-md"
                             />
+
+                            <q-input 
+                                filled 
+                                readonly
+                                :model-value="profileData.salario + ' €'"
+                                label="Salário" 
+                                color="grey-10"
+                                class="q-mt-md"
+                            />
+
                         </template>
                     </div>
 
@@ -209,6 +213,9 @@ onMounted(() => {
                                 label="NIF" 
                                 color="grey-10"
                                 class="q-mt-md"
+                                type="text"
+                                mask="#########"
+                                fill-mask
                             />
                             
                             <q-input 
@@ -217,7 +224,11 @@ onMounted(() => {
                                 label="IBAN" 
                                 color="grey-10"
                                 class="q-mt-md"
+                                prefix="PT50"
+                                mask="## ## #### #### #### #### ##"
+                                fill-mask
                             />
+
                         </template>
 
                         <!-- Campos para funcionário -->
@@ -259,18 +270,6 @@ onMounted(() => {
                         <q-btn label="Cancelar" type="reset" color="white" flat class="text-grey-10" />
                     </div>
                 </q-form>
-
-                <q-separator class="q-my-md" />
-
-                <div class="q-pa-md text-center">
-                    <q-btn 
-                        push 
-                        color="negative" 
-                        label="Terminar Sessão" 
-                        icon="logout"
-                        @click="handleLogout"
-                    />
-                </div>
             </div>
         </q-card>
     </div>

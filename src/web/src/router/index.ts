@@ -21,9 +21,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/aluno/:id',
-    name: 'aluno',
-    component: () => import('../views/AlunoView.vue'),
+    path: '/funcionarios',
+    name: 'funcionarios',
+    component: () => import('../views/FuncionariosView.vue'),
     meta: { requiresAuth: true }
   },
   {
