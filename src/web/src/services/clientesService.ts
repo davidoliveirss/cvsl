@@ -28,7 +28,7 @@ export const clientesService = {
       'funcionario': '/Funcionarios/clientes'
       };
 
-      const endpoint = `${endpointMap[userType] || '/Gerencia/clientes'}?incluirInativos=${incluirInativos}`;
+      const endpoint = `${endpointMap[userType]}?incluirInativos=${incluirInativos}`;
 
       const response = await authService.fetchWithAuth(endpoint);
 
@@ -104,7 +104,7 @@ export const clientesService = {
       'funcionario': `/Funcionarios/clientes/${id}`,
     };
 
-    const endpoint = endpointMap[userType] || '/clientes';
+    const endpoint = `${endpointMap[userType]}?clienteId=${id}`;
 
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'PATCH',

@@ -153,10 +153,8 @@ async function toggleEstadoFuncionario(funcionario: Funcionario) {
   }).onOk(async () => {
     try {
       if (funcionario.ativo) {
-        // Se está ativo, usa DELETE para desativar
         await funcionariosService.updateStatus(funcionario.id!, false);
       } else {
-        // Se está inativo, usa PATCH para reativar
         await funcionariosService.updateStatus(funcionario.id!, true);
       }
       

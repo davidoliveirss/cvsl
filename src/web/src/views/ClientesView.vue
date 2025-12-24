@@ -112,7 +112,7 @@ async function toggleEstadoCliente(cliente: Cliente) {
   
   $q.dialog({
     title: 'Confirmar alteração de estado',
-    message: `Tem certeza que deseja ${acao} este funcionário? ${novoEstado ? 'O funcionário poderá fazer login e ter acesso ao sistema.' : 'O funcionário não poderá fazer login nem ter acesso ao sistema.'}`,
+    message: `Tem certeza que deseja ${acao} este cliente? ${novoEstado ? 'O cliente poderá fazer login e ter acesso ao sistema.' : 'O funcionário não poderá fazer login nem ter acesso ao sistema.'}`, //mudar o texto
     cancel: {
       label: 'Cancelar',
       flat: true,
@@ -126,10 +126,8 @@ async function toggleEstadoCliente(cliente: Cliente) {
   }).onOk(async () => {
     try {
       if (cliente.ativo) {
-        // Se está ativo, usa DELETE para desativar
         await clientesService.updateStatus(cliente.id!, false);
       } else {
-        // Se está inativo, usa PATCH para reativar
         await clientesService.updateStatus(cliente.id!, true);
       }
       
