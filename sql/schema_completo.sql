@@ -134,3 +134,18 @@ CREATE TABLE iva (
     nome VARCHAR(50) NOT NULL,
     taxa DECIMAL(4,2) NOT NULL
 );
+
+-- Inserts de dados iniciais
+-- Password: $2a$11$zyAiBAPwlt2XrqJqDTi9SeLgYNvxzLvg3uqwh7YZP5/Q8eGQosiz.
+
+-- Admin
+INSERT INTO admins (nome, email, password, nivel, ativo) 
+VALUES ('Admin Principal', 'admin@cvsl.pt', '$2a$11$zyAiBAPwlt2XrqJqDTi9SeLgYNvxzLvg3uqwh7YZP5/Q8eGQosiz.', 'super_admin', TRUE);
+
+-- Clínica
+INSERT INTO clinicas (nome, email, password, cp, nif, iban, ativo) 
+VALUES ('Clínica Veterinária São Lucas', 'clinica@cvsl.pt', '$2a$11$zyAiBAPwlt2XrqJqDTi9SeLgYNvxzLvg3uqwh7YZP5/Q8eGQosiz.', '1000-001', '123456789', 'PT50000000000000000000001', TRUE);
+
+-- Funcionário (associado à clínica id=1)
+INSERT INTO funcionarios (nome, especialidade, telefone, email, password, salario, id_clinica, ativo) 
+VALUES ('Dr. João Silva', 'Veterinário', '912345678', 'joao.silva@cvsl.pt', '$2a$11$zyAiBAPwlt2XrqJqDTi9SeLgYNvxzLvg3uqwh7YZP5/Q8eGQosiz.', 1500.00, 1, TRUE);
