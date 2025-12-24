@@ -100,11 +100,11 @@ export const clientesService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': `/Clinicas/clientes/`,
-      'funcionario': `/Funcionarios/clientes/`,
+      'clinica': `/Clinicas/clientes/${id}`, 
+      'funcionario': `/Funcionarios/clientes/${id}`,
     };
 
-    const endpoint = `${endpointMap[userType]}?clienteId=${id}`;
+    const endpoint = endpointMap[userType] || `/clientes/${id}`;
 
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'PATCH',
