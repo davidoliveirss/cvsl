@@ -341,7 +341,7 @@ public class ClinicasController : ControllerBase
     }
 
     [Authorize(Roles = "Clinica")]
-    [HttpPatch("funcionarios/{funcionarioId}/ativo")]
+    [HttpPatch("funcionarios/{funcionarioId}")]
     [SwaggerOperation(
         Summary = "Reativar funcionario",
         Description = "Metodo para reativar funcionario"
