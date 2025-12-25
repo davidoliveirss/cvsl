@@ -50,7 +50,7 @@ const handleLogout = () => {
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple @click="router.push('/resumos')">
+        <q-item clickable v-ripple @click="router.push('/animais')">
           <q-item-section avatar>
             <q-icon name="pets" color="white" />
           </q-item-section>
@@ -116,7 +116,7 @@ const handleLogout = () => {
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple @click="router.push('/resumos')">
+        <q-item clickable v-ripple @click="router.push('/animais')">
           <q-item-section avatar>
             <q-icon name="pets" color="white" />
           </q-item-section>

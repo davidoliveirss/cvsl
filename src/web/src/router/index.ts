@@ -27,9 +27,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/resumos',
-    name: 'resumos',
-    component: () => import('../views/ResumosView.vue'),
+    path: '/animais',
+    name: 'animais',
+    component: () => import('../views/AnimaisView.vue'),
     meta: { requiresAuth: true }
   },
   {

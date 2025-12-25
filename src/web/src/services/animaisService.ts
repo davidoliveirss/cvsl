@@ -8,9 +8,9 @@ export interface Animal {
   nome: string;
   especie?: string;
   raca?: string;
-  data_nascimento?: Date;
+  data_nascimento?: string;
   sexo?: string;
-  id_cliente: number;
+  id_cliente: number | null;
   id_clinica: number;
   ativo?: boolean;
 }
@@ -26,8 +26,8 @@ export const animaisService = {
       }
 
       const endpointMap: Record<string, string> = {
-      'clinica': '/Clinicas/clientes',
-      'funcionario': '/Funcionarios/clientes'
+      'clinica': '/Clinicas/animais',
+      'funcionario': '/Funcionarios/animais'
       };
 
       const endpoint = `${endpointMap[userType]}?incluirInativos=${incluirInativos}`;
@@ -35,7 +35,7 @@ export const animaisService = {
       const response = await authService.fetchWithAuth(endpoint);
 
       if (!response.ok) {
-        throw new Error('Erro ao carregar clientes');
+        throw new Error('Erro ao carregar animais');
       }
       
       return response.json();
@@ -52,7 +52,7 @@ export const animaisService = {
     return response.json();
   },
 
-  async create(cliente: Animal): Promise<Animal> {
+  async create(animal: Animal): Promise<Animal> {
     const userType = authService.getUserType();
   
     if (!userType) {
@@ -60,20 +60,20 @@ export const animaisService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': '/Clinicas/clientes',
-      'funcionario': '/Funcionarios/clientes',
+      'clinica': '/Clinicas/animais',
+      'funcionario': '/Funcionarios/animais',
     };
 
-    const endpoint = endpointMap[userType] || '/clientes';
+    const endpoint = endpointMap[userType] || '/animais';
   
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'POST',
-      body: JSON.stringify(cliente)
+      body: JSON.stringify(animal)
     });
   
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao criar cliente');
+      throw new Error(error.message || 'Erro ao registar o animal');
     }
   
     return response.json();
