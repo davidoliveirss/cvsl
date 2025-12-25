@@ -510,10 +510,7 @@ public class FuncionariosController : ControllerBase
         Summary = "Listar animais",
         Description = "Metodo para listar animais da clinica. Pode filtrar por cliente ou pesquisa."
     )]
-    public async Task<IActionResult> GetAnimais(
-        [FromQuery] int? clienteId = null, 
-        [FromQuery] string? pesquisa = null, 
-        [FromQuery] bool incluirInativos = false)
+    public async Task<IActionResult> GetAnimais([FromQuery] bool incluirInativos = false)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
         
@@ -539,21 +536,6 @@ public class FuncionariosController : ControllerBase
         if (!incluirInativos)
         {
             query = query.Where(a => a.Ativo);
-        }
-
-        if (clienteId.HasValue)
-        {
-            query = query.Where(a => a.IdCliente == clienteId.Value);
-        }
-        
-        if (!string.IsNullOrEmpty(pesquisa))
-        {
-            query = query.Where(a => 
-                a.Nome.Contains(pesquisa) || 
-                (a.Transponder != null && a.Transponder.Contains(pesquisa)) ||
-                (a.Especie != null && a.Especie.Contains(pesquisa)) ||
-                (a.Raca != null && a.Raca.Contains(pesquisa))
-            );
         }
         
         var animais = await query

@@ -7,5 +7,6 @@ CREATE TABLE animais (
     data_nascimento DATE,
     sexo CHAR(1),
     id_cliente INT NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
-    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE
+    id_clinica INT NOT NULL REFERENCES clinicas(id) ON DELETE CASCADE,
+    ativo BOOLEAN DEFAULT TRUE
 );
