@@ -110,29 +110,6 @@ async function saveFuncionario() {
   }
 }
 
-async function deleteFuncionario(id: number) {
-  $q.dialog({
-    title: 'Confirmar',
-    message: 'Tem certeza que deseja remover este funcionário?',
-    cancel: true,
-    persistent: true
-  }).onOk(async () => {
-    try {
-      await funcionariosService.delete(id);
-      $q.notify({
-        type: 'positive',
-        message: 'Funcionário removido com sucesso!'
-      });
-      await loadFuncionarios();
-    } catch (error: any) {
-      $q.notify({
-        type: 'negative',
-        message: error.message || 'Erro ao remover funcionário'
-      });
-    }
-  });
-}
-
 async function toggleEstadoFuncionario(funcionario: Funcionario) {
   const novoEstado = !funcionario.ativo;
   const acao = novoEstado ? 'ativar' : 'desativar';

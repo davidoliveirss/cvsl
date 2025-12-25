@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { clientesService, type Cliente } from '@/services/clientesService';
+import { animaisService, type Animal } from '@/services/animaisService';
 import { authService } from '@/services/authService';
 import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
 
 const $q = useQuasar();
 
-const clientes = ref<Cliente[]>([]);
+const clientes = ref<Animal[]>([]);
 const loading = ref(false);
 const dialog = ref(false);
 const editMode = ref(false);
@@ -28,7 +28,7 @@ const clinicaId = computed(() => {
   }
 });
 
-const formData = ref<Cliente>({
+const formData = ref<Animal>({
   nome: '',
   telefone: '',
   email: '',
