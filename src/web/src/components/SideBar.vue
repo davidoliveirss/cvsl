@@ -149,13 +149,13 @@ const handleLogout = () => {
 
         <!-- Info do utilizador -->
         <q-item v-if="authStore.user" class="q-mb-xs">
-          <q-item-section avatar>
+          <q-item-section color="red" avatar>
             <q-avatar color="white" text-color="primary" icon="account_circle" />
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-weight-medium">{{ authStore.user.nome }}</q-item-label>
             <q-item-label caption class="text-white" style="opacity: 0.7;">
-              {{ authStore.isClinica ? '🏥 Clínica' : '👨‍⚕️ Funcionário' }}
+              {{ authStore.isClinica ? 'Clínica' : 'Funcionário' }}
             </q-item-label>
           </q-item-section>
         </q-item>

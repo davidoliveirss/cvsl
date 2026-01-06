@@ -56,7 +56,7 @@ const currentStatus = ref(true);
 
                 <q-item>
                     <q-item-section avatar>
-                        <q-spinner-rings class="q-ml-sm" color="green" size="sm" />
+                        <q-spinner-oval class="q-ml-sm" color="red" size="sm" />
                     </q-item-section>
                     <q-item-section>
                         <q-item-label class="q-mt-xs q-ml-xs">Calendário</q-item-label>
@@ -77,13 +77,25 @@ const currentStatus = ref(true);
                 </q-item>
 
                 <q-separator spaced inset />
-                
+
+                <q-item>
+                    <q-item-section avatar>
+                        <q-spinner-ios class="q-ml-sm" color="blue" size="sm" />
+                    </q-item-section>
+                    <q-item-section>
+                        <q-item-label class="q-mt-xs q-ml-xs">Animais</q-item-label>
+                        <q-item-label class="q-mt-xs q-ml-xs" caption>Nenhum problema</q-item-label>
+                    </q-item-section>
+                </q-item>
+
+                <q-separator spaced inset />
+
                 <q-item>
                     <q-item-section avatar>
                         <q-spinner-rings class="q-ml-sm" color="green" size="sm" />
                     </q-item-section>
                     <q-item-section>
-                        <q-item-label class="q-mt-xs q-ml-xs">Feedback</q-item-label>
+                        <q-item-label class="q-mt-xs q-ml-xs">Funcionarios</q-item-label>
                         <q-item-label class="q-mt-xs q-ml-xs" caption>Nenhum problema</q-item-label>
                     </q-item-section>
                 </q-item>
