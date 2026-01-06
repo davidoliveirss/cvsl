@@ -170,9 +170,9 @@ onMounted(() => {
     <div class="q-pa-md">
       <div class="row items-center q-mb-md">
         <div class="col">
-          <div class="text-h5">Clientes</div>
+          <div class="text-h5">Animais</div>
           <div class="text-subtitle2 text-grey-7">
-            Gerir clientes da clínica
+            Gerir animais da clínica
           </div>
         </div>
         <div class="col-auto row items-center q-gutter-md">

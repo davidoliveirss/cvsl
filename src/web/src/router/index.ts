@@ -15,9 +15,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/pesquisa',
-    name: 'pesquisa',
-    component: () => import('../views/PesquisaView.vue'),
+    path: '/produtos',
+    name: 'produtos',
+    component: () => import('../views/ProdutosView.vue'),
     meta: { requiresAuth: true }
   },
   {

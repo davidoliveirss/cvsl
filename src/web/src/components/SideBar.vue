@@ -68,12 +68,12 @@ const handleLogout = () => {
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple @click="router.push('/resumos')">
+        <q-item clickable v-ripple @click="router.push('/produtos')">
           <q-item-section avatar>
             <q-icon name="event" color="white" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Consultas</q-item-label>
+            <q-item-label>Produtos</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -149,7 +149,7 @@ const handleLogout = () => {
 
         <!-- Info do utilizador -->
         <q-item v-if="authStore.user" class="q-mb-xs">
-          <q-item-section color="red" avatar>
+          <q-item-section avatar>
             <q-avatar color="white" text-color="primary" icon="account_circle" />
           </q-item-section>
           <q-item-section>
