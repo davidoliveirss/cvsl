@@ -5,12 +5,12 @@ const API_URL = 'http://localhost:5000/api';
 export interface Produto {
   id?: number;
   nome: string;
-  id_categoria?: number;
-  preco?: number;
-  unidades_por_caixa?: string;
-  quantidade_stock?: string;
-  id_clinica: number;
-  ativo?: boolean;
+  idCategoria: number;          // obrigatório, number
+  preco: number;                // obrigatório, number
+  unidadesPorCaixa: number;     // obrigatório, number
+  quantidadeStock: number;      // obrigatório, number
+  idClinica: number;            // camelCase (ver nota abaixo)
+  ativo: boolean;
 }
 
 export const produtosService = {

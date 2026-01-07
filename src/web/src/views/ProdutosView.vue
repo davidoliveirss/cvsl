@@ -31,19 +31,20 @@ const clinicaId = computed(() => {
 
 const formData = ref<Produto>({
   nome: '',
-  id_categoria: undefined,
+  idCategoria: 0,
   preco: 0,
-  unidades_por_caixa: undefined,
-  quantidade_stock: '',
-  id_clinica: clinicaId.value,
+  unidadesPorCaixa: 0,
+  quantidadeStock: 0,
+  idClinica: clinicaId.value,
   ativo: true
 });
+
 
 const columns = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const ,sortable: true},
   { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left' as const, sortable: true },
-  { name: 'preco', label: 'Preço', field: 'preco', align: 'left' as const },
-  { name: 'stock', label: 'Stock', field: 'stock', align: 'left' as const },
+  { name: 'preco', label: 'Preço', field: 'preco', align: 'right' as const, format: (val: any) => `${val} €`},
+  { name: 'stock', label: 'Stock', field: 'quantidadeStock', align: 'center' as const },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' as const },
   { name: 'actions', label: 'Ações', field: 'id', align: 'center' as const }
 ];
@@ -67,11 +68,11 @@ function openNewDialog() {
   editMode.value = false;
   formData.value = {
     nome: '',
-    id_categoria: undefined,
+    idCategoria: 0,
     preco: 0,
-    unidades_por_caixa: undefined,
-    quantidade_stock: '',
-    id_clinica: clinicaId.value,
+    unidadesPorCaixa: 0,
+    quantidadeStock: 0,
+    idClinica: clinicaId.value,
     ativo: true
   };
   dialog.value = true;
@@ -182,10 +183,19 @@ onMounted(() => {
           </q-td>
         </template>
 
+        <template v-slot:body-cell-ativo="props">
+          <q-td :props="props">
+            <q-badge 
+              :color="props.row.ativo ? 'positive' : 'negative'"
+              :label="props.row.ativo ? 'Ativo' : 'Inativo'"
+            />
+          </q-td>
+        </template>
+
         <template v-slot:no-data>
           <div class="full-width row flex-center text-grey-7 q-gutter-sm q-pa-lg">
             <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span>Nenhum cliente encontrado</span>
+            <span>Nenhum produto encontrado</span>
           </div>
         </template>
       </q-table>
@@ -204,14 +214,14 @@ onMounted(() => {
           <q-input v-model="formData.nome" label="Nome *" outlined dense class="q-mt-md"
             :rules="[val => !!val || 'Nome é obrigatório']" />
 
-          <q-input v-model="formData.id_categoria" label="Categoria" outlined dense class="q-mt-md" />
+          <q-input v-model="formData.idCategoria" label="Categoria" outlined dense class="q-mt-md" />
 
           <q-input v-model="formData.preco" label="Preço" outlined dense class="q-mt-md" suffix="€"/>
 
-          <q-input v-model="formData.unidades_por_caixa" label="Unidades por caixa" outlined dense type="number"
+          <q-input v-model="formData.unidadesPorCaixa" label="Unidades por caixa" outlined dense type="number"
             class="q-mt-md" />
 
-          <q-input v-model="formData.quantidade_stock" label="Quantidade existente em stock" outlined dense type="number"
+          <q-input v-model="formData.quantidadeStock" label="Quantidade existente em stock" outlined dense type="number"
             class="q-mt-md" />
         </q-card-section>
 
