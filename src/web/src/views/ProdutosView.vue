@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { animaisService, type Produto } from '@/services/produtosService';
+import { produtosService, type Produto } from '@/services/produtosService';
 import { authService } from '@/services/authService';
 import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
 
@@ -30,13 +30,11 @@ const clinicaId = computed(() => {
 });
 
 const formData = ref<Produto>({
-  transponder: '',
   nome: '',
-  especie: '',
-  raca: '',
-  data_nascimento: undefined,
-  sexo: '',
-  id_cliente: null,
+  id_categoria: undefined,
+  preco: 0,
+  unidades_por_caixa: undefined,
+  quantidade_stock: '',
   id_clinica: clinicaId.value,
   ativo: true
 });
@@ -54,7 +52,7 @@ const columns = [
 async function loadProdutos() {
   loading.value = true;
   try {
-    produtos.value = await animaisService.getAll(incluirInativos.value);
+    produtos.value = await produtosService.getAll(incluirInativos.value);
   } catch (error: any) {
     $q.notify({
       type: 'negative',
@@ -68,35 +66,33 @@ async function loadProdutos() {
 function openNewDialog() {
   editMode.value = false;
   formData.value = {
-    transponder: '',
     nome: '',
-    especie: '',
-    raca: '',
-    data_nascimento: undefined,
-    sexo: '',
-    id_cliente: 0,
+    id_categoria: undefined,
+    preco: 0,
+    unidades_por_caixa: undefined,
+    quantidade_stock: '',
     id_clinica: clinicaId.value,
     ativo: true
   };
   dialog.value = true;
 }
 
-function openEditDialog(animal: Produto) {
+function openEditDialog(produto: Produto) {
   editMode.value = true;
-  formData.value = { ...animal };
+  formData.value = { ...produto};
   dialog.value = true;
 }
 
-async function saveCliente() {
+async function saveProduto() {
   try {
     if (editMode.value && formData.value.id) {
-      await animaisService.update(formData.value.id, formData.value);
+      await produtosService.update(formData.value.id, formData.value);
       $q.notify({
         type: 'positive',
         message: 'Cliente atualizado com sucesso!'
       });
     } else {
-      await animaisService.create(formData.value);
+      await produtosService.create(formData.value);
       $q.notify({
         type: 'positive',
         message: 'Cliente criado com sucesso!'
@@ -133,9 +129,9 @@ async function toggleEstadoCliente(animal: Produto) {
   }).onOk(async () => {
     try {
       if (animal.ativo) {
-        await animaisService.updateStatus(animal.id!, false);
+        await produtosService.updateStatus(animal.id!, false);
       } else {
-        await animaisService.updateStatus(animal.id!, true);
+        await produtosService.updateStatus(animal.id!, true);
       }
 
       $q.notify({
@@ -169,7 +165,7 @@ onMounted(() => {
         </div>
         <div class="col-auto row items-center q-gutter-md">
           <q-toggle v-model="incluirInativos" label="Mostrar inativos" @update:model-value="loadProdutos" />
-          <q-btn v-if="isFuncionario" color="primary" label="Novo Cliente" icon="add" @click="openNewDialog" />
+          <q-btn v-if="!isFuncionario" color="primary" label="Novo Produto" icon="add" @click="openNewDialog" />
         </div>
       </div>
 
@@ -186,15 +182,6 @@ onMounted(() => {
           </q-td>
         </template>
 
-        <template v-slot:body-cell-ativo="props">
-          <q-td :props="props">
-            <q-badge 
-              :color="props.row.ativo ? 'positive' : 'negative'"
-              :label="props.row.ativo ? 'Ativo' : 'Inativo'"
-            />
-          </q-td>
-        </template>
-
         <template v-slot:no-data>
           <div class="full-width row flex-center text-grey-7 q-gutter-sm q-pa-lg">
             <q-icon size="2em" name="sentiment_dissatisfied" />
@@ -208,48 +195,31 @@ onMounted(() => {
       <q-card style="min-width: 450px">
         <q-card-section>
           <div class="text-h6">
-            {{ editMode ? 'Editar Cliente' : 'Novo Cliente' }}
+            {{ editMode ? 'Editar Produto' : 'Novo Produto' }}
           </div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
 
-          <q-input v-model="formData.transponder" label="Transponder" outlined dense maxlength="15" class="q-mt-md" />
-
           <q-input v-model="formData.nome" label="Nome *" outlined dense class="q-mt-md"
             :rules="[val => !!val || 'Nome é obrigatório']" />
 
-          <q-input v-model="formData.especie" label="Espécie" outlined dense class="q-mt-md" />
+          <q-input v-model="formData.id_categoria" label="Categoria" outlined dense class="q-mt-md" />
 
-          <q-input v-model="formData.raca" label="Raça" outlined dense class="q-mt-md" />
+          <q-input v-model="formData.preco" label="Preço" outlined dense class="q-mt-md" suffix="€"/>
 
-          <q-input v-model="formData.data_nascimento" label="Data Nascimento" outlined dense type="date"
+          <q-input v-model="formData.unidades_por_caixa" label="Unidades por caixa" outlined dense type="number"
             class="q-mt-md" />
 
-          <q-select v-model="formData.sexo" label="Sexo" outlined dense class="q-mt-md" :options="[
-            { label: 'Macho', value: 'M' },
-            { label: 'Fêmea', value: 'F' }
-          ]" option-value="value" option-label="label" />
-
-          <q-select v-model="formData.id_cliente" label="Cliente *" outlined dense class="q-mt-md" :options="clientes"
-            option-value="id" option-label="nome" use-input  
-            fill-input 
-            input-debounce="0" 
-            emit-value
-            map-options
-            :rules="[val => val !== null && val !== 0 || 'Cliente é obrigatório']"
-            clearable
-            />
-
-
-
+          <q-input v-model="formData.quantidade_stock" label="Quantidade existente em stock" outlined dense type="number"
+            class="q-mt-md" />
         </q-card-section>
 
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
-          <q-btn unelevated label="Salvar" color="primary" @click="saveCliente"
-            :disable="!formData.nome || !formData.transponder" />
+          <q-btn unelevated label="Salvar" color="primary" @click="saveProduto"
+            :disable="!formData.nome"/>
         </q-card-actions>
       </q-card>
     </q-dialog>

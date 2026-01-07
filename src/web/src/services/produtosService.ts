@@ -4,18 +4,16 @@ const API_URL = 'http://localhost:5000/api';
 
 export interface Produto {
   id?: number;
-  transponder?: string;
   nome: string;
-  especie?: string;
-  raca?: string;
-  data_nascimento?: string;
-  sexo?: string;
-  id_cliente: number | null;
+  id_categoria?: number;
+  preco?: number;
+  unidades_por_caixa?: string;
+  quantidade_stock?: string;
   id_clinica: number;
   ativo?: boolean;
 }
 
-export const animaisService = {
+export const produtosService = {
   // GET /api/clientes - Listar todos
   async getAll(incluirInativos: boolean = false): Promise<Produto[]> {
 
@@ -26,8 +24,8 @@ export const animaisService = {
       }
 
       const endpointMap: Record<string, string> = {
-      'clinica': '/Clinicas/animais',
-      'funcionario': '/Funcionarios/animais'
+      'clinica': '/Clinicas/produtos',
+      'funcionario': '/Funcionarios/produtos'
       };
 
       const endpoint = `${endpointMap[userType]}?incluirInativos=${incluirInativos}`;
@@ -35,7 +33,7 @@ export const animaisService = {
       const response = await authService.fetchWithAuth(endpoint);
 
       if (!response.ok) {
-        throw new Error('Erro ao carregar animais');
+        throw new Error('Erro ao carregar produtos');
       }
       
       return response.json();
@@ -46,13 +44,13 @@ export const animaisService = {
     const response = await authService.fetchWithAuth(`/clientes/${id}`);
     
     if (!response.ok) {
-      throw new Error('Cliente não encontrado');
+      throw new Error('Produto não encontrado');
     }
     
     return response.json();
   },
 
-  async create(animal: Produto): Promise<Produto> {
+  async create(produto: Produto): Promise<Produto> {
     const userType = authService.getUserType();
   
     if (!userType) {
@@ -60,20 +58,20 @@ export const animaisService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': '/Clinicas/animais',
-      'funcionario': '/Funcionarios/animais',
+      'clinica': '/Clinicas/produtos',
+      'funcionario': '/Funcionarios/produtos',
     };
 
-    const endpoint = endpointMap[userType] || '/animais';
+    const endpoint = endpointMap[userType] || '/produto';
   
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'POST',
-      body: JSON.stringify(animal)
+      body: JSON.stringify(produto)
     });
   
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao registar o animal');
+      throw new Error(error.message || 'Erro ao registar o produto');
     }
   
     return response.json();
