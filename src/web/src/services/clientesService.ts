@@ -1,17 +1,8 @@
 import { authService } from './authService';
+import type { Cliente } 
+  from '@/types/clientes';
 
 const API_URL = 'http://localhost:5000/api';
-
-export interface Cliente {
-  id?: number;
-  nome: string;
-  nif?: string;
-  morada?: string;
-  telefone: string;
-  email?: string;
-  clinicaId: number;
-  ativo?: boolean;
-}
 
 export const clientesService = {
   // GET /api/clientes - Listar todos

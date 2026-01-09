@@ -1,16 +1,8 @@
+import type { LoginCredentials, AuthResponse } 
+  from '@/types/auth';
+
 const API_URL = 'http://localhost:5000/api';
 const DEFAULT_TIMEOUT = 5000; // 5 segundos
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  token: string;
-  email: string;
-  nome: string;
-}
 
 type UserType = 'clinica' | 'funcionario' | 'admin';
 

@@ -1,35 +1,6 @@
 import { authService } from './authService';
-
-export interface Funcionario {
-  id?: number;
-  nome: string;
-  email: string;
-  password?: string;
-  especialidade?: string;
-  telefone: string;
-  salario: number;
-  ativo?: boolean;
-  clinicaId: number;
-}
-
-interface FuncionarioPerfil {
-  id: number;
-  nome: string;
-  email: string;
-  especialidade?: string;
-  telefone: string;
-  salario: number;
-  ativo: boolean;
-  clinica: {
-    id: number;
-    nome: string;
-  };
-}
-
-interface UpdatePerfilData {
-  telefone: string;
-  password?: string;
-}
+import type { Funcionario, FuncionarioPerfil, UpdatePerfilData } 
+  from '@/types/funcionarios';
 
 export const funcionariosService = {
   // ========== GESTÃO DE FUNCIONÁRIOS ==========
