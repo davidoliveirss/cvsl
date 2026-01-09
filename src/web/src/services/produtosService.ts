@@ -1,17 +1,9 @@
 import { authService } from './authService';
+import type { Produto } 
+  from '@/types/produtos';
 
 const API_URL = 'http://localhost:5000/api';
 
-export interface Produto {
-  id?: number;
-  nome: string;
-  idCategoria: number;          // obrigatório, number
-  preco: number;                // obrigatório, number
-  unidadesPorCaixa: number;     // obrigatório, number
-  quantidadeStock: number;      // obrigatório, number
-  idClinica: number;            // camelCase (ver nota abaixo)
-  ativo: boolean;
-}
 
 export const produtosService = {
   // GET /api/clientes - Listar todos

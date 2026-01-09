@@ -77,6 +77,15 @@ const handleLogout = () => {
           </q-item-section>
         </q-item>
 
+        <q-item clickable v-ripple @click="router.push('/stock')">
+          <q-item-section avatar>
+            <q-icon name="warehouse" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Stock</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-item clickable v-ripple @click="router.push('/avaliar')">
           <q-item-section avatar>
             <q-icon name="receipt" color="white" />
