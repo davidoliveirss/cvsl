@@ -1,153 +1,169 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { produtosService } from '@/services/produtosService';
 import { authService } from '@/services/authService';
 import type { Produto } from '@/types/produtos';
-import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
 
 const $q = useQuasar();
 
 const produtos = ref<Produto[]>([]);
 const loading = ref(false);
-const dialog = ref(false);
-const editMode = ref(false);
-const incluirInativos = ref(false);
-const clientes = ref<any[]>([]);
 
-const isFuncionario = computed(() => authService.isFuncionario());
+// filtros
+const search = ref('');
+const categoriaSelecionada = ref<string | null>(null);
+const soCriticos = ref(false);
+
+// diálogo de movimento
+const movDialog = ref(false);
+const tipoMovimento = ref<'entrada' | 'saida'>('entrada');
+const produtoSelecionado = ref<Produto | null>(null);
+const movQuantidade = ref<number | null>(null);
+const movMotivo = ref('');
+
+// TODO: se tiveres categorias no backend, podes carregar via serviço
+const categorias = ref<{ label: string; value: string }[]>([]);
 
 const clinicaId = computed(() => {
   const token = authService.getToken();
-  if (!token) return 1; 
+  if (!token) return 1;
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    // Para funcionários, pode vir de uma claim específica da clínica
     return parseInt(payload.clinicaid || payload.nameid || payload.sub || '1');
   } catch {
-    return 1; 
+    return 1;
   }
 });
 
-const formData = ref<Produto>({
-  nome: '',
-  idCategoria: 0,
-  preco: 0,
-  unidadesPorCaixa: 0,
-  quantidadeStock: 0,
-  idClinica: clinicaId.value,
-  ativo: true
+// podes ajustar estes limites consoante o teu modelo
+function stockMinimo(p: Produto) {
+  return 5;
+}
+function stockAviso(p: Produto) {
+  return 10;
+}
+function stockMaximo(p: Produto) {
+  return 50;
+}
+
+const produtosFiltrados = computed(() => {
+  return produtos.value.filter(p => {
+    const matchSearch =
+      !search.value ||
+      p.nome.toLowerCase().includes(search.value.toLowerCase());
+
+    const matchCategoria =
+      !categoriaSelecionada.value ||
+      String(p.idCategoria) === String(categoriaSelecionada.value);
+
+    const critico = p.quantidadeStock <= stockMinimo(p);
+    const matchCritico = !soCriticos.value || critico;
+
+    return matchSearch && matchCategoria && matchCritico;
+  });
 });
 
+const totalProdutos = computed(() => produtos.value.length);
+const produtosCriticos = computed(() =>
+  produtos.value.filter(p => p.quantidadeStock <= stockMinimo(p))
+);
+const valorTotalStock = computed(() =>
+  produtos.value.reduce((acc, p) => acc + (p.preco || 0) * (p.quantidadeStock || 0), 0)
+);
 
-const columns = [
-  { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const ,sortable: true},
-  { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left' as const, sortable: true },
-  { name: 'preco', label: 'Preço', field: 'preco', align: 'right' as const, format: (val: any) => `${val} €`},
-  { name: 'stock', label: 'Stock', field: 'quantidadeStock', align: 'center' as const },
-  { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' as const },
-  { name: 'actions', label: 'Ações', field: 'id', align: 'center' as const }
-];
+const colunas = [
+  { id: 'critico', label: 'Crítico' },
+  { id: 'baixo', label: 'Baixo' },
+  { id: 'ok', label: 'Ok' },
+  { id: 'excesso', label: 'Excesso' }
+] as const;
 
+type ColunaId = (typeof colunas)[number]['id'];
+
+const produtosPorColuna = computed<Record<ColunaId, Produto[]>>(() => {
+  const map: Record<ColunaId, Produto[]> = {
+    critico: [],
+    baixo: [],
+    ok: [],
+    excesso: []
+  };
+
+  produtosFiltrados.value.forEach(p => {
+    const q = p.quantidadeStock || 0;
+    let col: ColunaId = 'ok';
+
+    if (q <= stockMinimo(p)) col = 'critico';
+    else if (q <= stockAviso(p)) col = 'baixo';
+    else if (q >= stockMaximo(p)) col = 'excesso';
+
+    map[col].push(p);
+  });
+
+  return map;
+});
+
+function getStockColor(p: Produto) {
+  const q = p.quantidadeStock || 0;
+  if (q <= stockMinimo(p)) return 'negative';
+  if (q <= stockAviso(p)) return 'warning';
+  return 'positive';
+}
 
 async function loadProdutos() {
   loading.value = true;
   try {
-    produtos.value = await produtosService.getAll(incluirInativos.value);
+    produtos.value = await produtosService.getAll(false);
   } catch (error: any) {
     $q.notify({
       type: 'negative',
-      message: error.message || 'Erro ao carregar animais'
+      message: error.message || 'Erro ao carregar produtos'
     });
   } finally {
     loading.value = false;
   }
 }
 
-function openNewDialog() {
-  editMode.value = false;
-  formData.value = {
-    nome: '',
-    idCategoria: 0,
-    preco: 0,
-    unidadesPorCaixa: 0,
-    quantidadeStock: 0,
-    idClinica: clinicaId.value,
-    ativo: true
-  };
-  dialog.value = true;
+function openMovimentoDialog(p: Produto, tipo: 'entrada' | 'saida') {
+  produtoSelecionado.value = p;
+  tipoMovimento.value = tipo;
+  movQuantidade.value = null;
+  movMotivo.value = '';
+  movDialog.value = true;
 }
 
-function openEditDialog(produto: Produto) {
-  editMode.value = true;
-  formData.value = { ...produto};
-  dialog.value = true;
-}
+async function registarMovimento() {
+  if (!produtoSelecionado.value || !movQuantidade.value || movQuantidade.value <= 0) {
+    $q.notify({
+      type: 'warning',
+      message: 'Indique uma quantidade válida'
+    });
+    return;
+  }
 
-async function saveProduto() {
   try {
-    if (editMode.value && formData.value.id) {
-      await produtosService.update(formData.value.id, formData.value);
-      $q.notify({
-        type: 'positive',
-        message: 'Cliente atualizado com sucesso!'
-      });
-    } else {
-      await produtosService.create(formData.value);
-      $q.notify({
-        type: 'positive',
-        message: 'Cliente criado com sucesso!'
-      });
-    }
+    const sinal = tipoMovimento.value === 'entrada' ? 1 : -1;
+    const novaQuantidade =
+      (produtoSelecionado.value.quantidadeStock || 0) + sinal * movQuantidade.value;
 
-    dialog.value = false;
+    await produtosService.update(produtoSelecionado.value.id!, {
+      ...produtoSelecionado.value,
+      quantidadeStock: novaQuantidade
+    });
+
+    $q.notify({
+      type: 'positive',
+      message: 'Movimento registado com sucesso'
+    });
+    movDialog.value = false;
     await loadProdutos();
   } catch (error: any) {
     $q.notify({
       type: 'negative',
-      message: error.message || 'Erro ao salvar cliente'
+      message: error.message || 'Erro ao registar movimento'
     });
   }
-}
-
-async function toggleEstadoCliente(animal: Produto) {
-  const novoEstado = !animal.ativo;
-  const acao = novoEstado ? 'ativar' : 'desativar';
-
-  $q.dialog({
-    title: 'Confirmar alteração de estado',
-    message: `Tem certeza que deseja ${acao} este cliente? ${novoEstado ? 'O cliente poderá fazer login e ter acesso ao sistema.' : 'O funcionário não poderá fazer login nem ter acesso ao sistema.'}`, //mudar o texto
-    cancel: {
-      label: 'Cancelar',
-      flat: true,
-      color: 'grey-7'
-    },
-    ok: {
-      label: 'Confirmar',
-      color: novoEstado ? 'positive' : 'warning'
-    },
-    persistent: true
-  }).onOk(async () => {
-    try {
-      if (animal.ativo) {
-        await produtosService.updateStatus(animal.id!, false);
-      } else {
-        await produtosService.updateStatus(animal.id!, true);
-      }
-
-      $q.notify({
-        type: 'positive',
-        message: `Cliente ${novoEstado ? 'ativado' : 'desativado'} com sucesso!`
-      });
-      await loadProdutos();
-    } catch (error: any) {
-      $q.notify({
-        type: 'negative',
-        message: error.message || 'Erro ao alterar estado do cliente'
-      });
-    }
-  });
 }
 
 onMounted(() => {
@@ -160,81 +176,167 @@ onMounted(() => {
     <div class="q-pa-md">
       <div class="row items-center q-mb-md">
         <div class="col">
-          <div class="text-h5">Produtos</div>
+          <div class="text-h5">Stock</div>
           <div class="text-subtitle2 text-grey-7">
-            Gerir produtos da clínica
+            Gestão de stock da clínica
           </div>
-        </div>
-        <div class="col-auto row items-center q-gutter-md">
-          <q-toggle v-model="incluirInativos" label="Mostrar inativos" @update:model-value="loadProdutos" />
-          <q-btn v-if="!isFuncionario" color="primary" label="Novo Produto" icon="add" @click="openNewDialog" />
         </div>
       </div>
 
-      <q-table :rows="produtos" :columns="columns" row-key="id" :loading="loading" flat bordered>
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props">
-            <q-btn v-if="isFuncionario" flat round dense color="primary" icon="edit" @click="openEditDialog(props.row)">
-              <q-tooltip>Editar</q-tooltip>
-            </q-btn>
-            <q-btn flat round dense :color="props.row.ativo ? 'negative' : 'positive'"
-              :icon="props.row.ativo ? 'block' : 'check_circle'" @click="toggleEstadoCliente(props.row)">
-              <q-tooltip>{{ props.row.ativo ? 'Desativar' : 'Ativar' }}</q-tooltip>
-            </q-btn>
-          </q-td>
-        </template>
+      <!-- Dashboard topo -->
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-xs-12 col-sm-6 col-md-4">
+          <q-card class="bg-primary text-white">
+            <q-card-section>
+              <div class="text-caption">Produtos em stock</div>
+              <div class="text-h5">{{ totalProdutos }}</div>
+            </q-card-section>
+          </q-card>
+        </div>
 
-        <template v-slot:body-cell-ativo="props">
-          <q-td :props="props">
-            <q-badge 
-              :color="props.row.ativo ? 'positive' : 'negative'"
-              :label="props.row.ativo ? 'Ativo' : 'Inativo'"
-            />
-          </q-td>
-        </template>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+          <q-card class="bg-negative text-white">
+            <q-card-section>
+              <div class="text-caption">Abaixo do mínimo</div>
+              <div class="text-h5">{{ produtosCriticos.length }}</div>
+            </q-card-section>
+          </q-card>
+        </div>
 
-        <template v-slot:no-data>
-          <div class="full-width row flex-center text-grey-7 q-gutter-sm q-pa-lg">
-            <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span>Nenhum produto encontrado</span>
-          </div>
-        </template>
-      </q-table>
+        <div class="col-xs-12 col-sm-6 col-md-4">
+          <q-card class="bg-secondary text-white">
+            <q-card-section>
+              <div class="text-caption">Valor total stock</div>
+              <div class="text-h6">
+                {{ valorTotalStock.toFixed(2) }} €
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="row items-center q-mb-md q-gutter-md">
+        <q-input v-model="search" dense outlined placeholder="Procurar produto..." class="col-12 col-sm-4">
+          <template #append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+
+        <q-select v-model="categoriaSelecionada" :options="categorias" dense outlined emit-value map-options
+          class="col-12 col-sm-3" label="Categoria" clearable />
+
+        <q-toggle v-model="soCriticos" label="Só abaixo do mínimo" />
+      </div>
+
+      <!-- Grid de cartões -->
+      <div class="row q-col-gutter-md q-mb-xl">
+        <div v-for="p in produtosFiltrados" :key="p.id" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+          <q-card>
+            <q-card-section>
+              <div class="text-subtitle1">{{ p.nome }}</div>
+              <div class="text-caption text-grey-7">
+                Categoria: {{ p.idCategoria }}
+              </div>
+            </q-card-section>
+
+            <q-card-section>
+              <div class="row items-center justify-between q-mb-sm">
+                <span>Stock: {{ p.quantidadeStock }}</span>
+                <span class="text-caption">
+                  / {{ p.unidadesPorCaixa }} por caixa
+                </span>
+              </div>
+
+              <q-linear-progress :value="Math.min(
+                1,
+                (p.quantidadeStock || 0) / stockMaximo(p)
+              )
+                " :color="getStockColor(p)" track-color="grey-3" rounded size="10px" />
+
+              <div class="row justify-between q-mt-xs text-caption">
+                <span>Mín: {{ stockMinimo(p) }}</span>
+                <span>Aviso: {{ stockAviso(p) }}</span>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="around">
+              <q-btn flat icon="add" label="Entrada" @click="openMovimentoDialog(p, 'entrada')" />
+              <q-btn flat icon="remove" label="Saída" color="negative" @click="openMovimentoDialog(p, 'saida')" />
+            </q-card-actions>
+          </q-card>
+        </div>
+
+        <div v-if="!loading && produtosFiltrados.length === 0" class="col-12 text-center text-grey-6 q-mt-lg">
+          Nenhum produto encontrado.
+        </div>
+      </div>
+
+      <!-- Kanban por nível de stock -->
+      <div class="text-subtitle1 q-mb-sm">
+        Visão por nível de stock
+      </div>
+      <div class="row no-wrap kanban-scroll q-pb-xl">
+        <div v-for="col in colunas" :key="col.id" class="kanban-column column">
+          <div class="text-subtitle2 q-mb-sm">{{ col.label }}</div>
+          <q-card v-for="p in produtosPorColuna[col.id]" :key="p.id" class="q-mb-sm">
+            <q-card-section class="q-pb-xs">
+              <div class="text-body2">{{ p.nome }}</div>
+              <div class="text-caption text-grey-7">
+                Stock: {{ p.quantidadeStock }}
+              </div>
+            </q-card-section>
+            <q-card-section class="q-pt-none">
+              <q-linear-progress :value="Math.min(
+                1,
+                (p.quantidadeStock || 0) / stockMaximo(p)
+              )
+                " :color="getStockColor(p)" track-color="grey-3" rounded size="6px" />
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
     </div>
 
-    <q-dialog v-model="dialog" persistent>
-      <q-card style="min-width: 450px">
+    <!-- Dialog de movimentos -->
+    <q-dialog v-model="movDialog" persistent>
+      <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">
-            {{ editMode ? 'Editar Produto' : 'Novo Produto' }}
+            {{ tipoMovimento === 'entrada'
+              ? 'Entrada em stock'
+              : 'Saída de stock' }}
+          </div>
+          <div class="text-subtitle2 text-grey-7">
+            {{ produtoSelecionado?.nome }}
           </div>
         </q-card-section>
 
-        <q-card-section class="q-pt-none">
-
-          <q-input v-model="formData.nome" label="Nome *" outlined dense class="q-mt-md"
-            :rules="[val => !!val || 'Nome é obrigatório']" />
-
-          <q-input v-model="formData.idCategoria" label="Categoria" outlined dense class="q-mt-md" />
-
-          <q-input v-model="formData.preco" label="Preço" outlined dense class="q-mt-md" suffix="€"/>
-
-          <q-input v-model="formData.unidadesPorCaixa" label="Unidades por caixa" outlined dense type="number"
-            class="q-mt-md" />
-
-          <q-input v-model="formData.quantidadeStock" label="Quantidade existente em stock" outlined dense type="number"
-            class="q-mt-md" />
+        <q-card-section>
+          <q-input v-model.number="movQuantidade" type="number" min="1" label="Quantidade" outlined dense
+            class="q-mb-sm" />
+          <q-input v-model="movMotivo" type="textarea" label="Motivo (opcional)" outlined dense />
         </q-card-section>
 
-
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
-          <q-btn unelevated label="Salvar" color="primary" @click="saveProduto"
-            :disable="!formData.nome"/>
+          <q-btn flat label="Cancelar" v-close-popup />
+          <q-btn color="primary" label="Guardar" @click="registarMovimento" />
         </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
 </template>
 
-<style scoped></style>
+<style scoped>
+.kanban-scroll {
+  overflow-x: auto;
+}
+
+.kanban-column {
+  min-width: 220px;
+  max-width: 260px;
+  margin-right: 16px;
+}
+</style>

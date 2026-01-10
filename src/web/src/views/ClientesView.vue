@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { clientesService, type Cliente } from '@/services/clientesService';
+import { clientesService } from '@/services/clientesService';
 import { authService } from '@/services/authService';
 import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
+import type { Cliente } from '@/types/clientes';
 
 const $q = useQuasar();
 
