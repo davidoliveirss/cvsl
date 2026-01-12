@@ -761,6 +761,49 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Produto {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = produto.Ativo });
     }
 
+    [Authorize(Roles = "Funcionario")]
+    [HttpGet("animais")]
+    [SwaggerOperation(
+        Summary = "Listar animais",
+        Description = "Metodo para listar animais da clinica. Pode filtrar por cliente ou pesquisa."
+    )]
+    public async Task<IActionResult> GetAnimais([FromQuery] bool incluirInativos = false)
+    {
+        var clinicaId = GetClinicaIdFromToken();
+        
+        if (clinicaId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var query = _context.Animais
+            .Include(a => a.Cliente)
+            .Where(a => a.IdClinica == clinicaId);
+        
+        if (!incluirInativos)
+        {
+            query = query.Where(a => a.Ativo);
+        }
+        
+        var animais = await query
+            .Select(a => new
+            {
+                id = a.Id,
+                transponder = a.Transponder,
+                nome = a.Nome,
+                especie = a.Especie,
+                raca = a.Raca,
+                dataNascimento = a.DataNascimento,
+                sexo = a.Sexo,
+                idCliente = a.IdCliente,
+                nomeCliente = a.Cliente!.Nome,
+                ativo = a.Ativo
+            })
+            .ToListAsync();
+
+        return Ok(animais);
+    }
+
 }
 
 // Model para atualizar clínica (apenas CP, NIF e IBAN)
