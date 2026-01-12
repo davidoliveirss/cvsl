@@ -23,7 +23,7 @@ public class FuncionariosController : ControllerBase
     private int? GetFuncionarioIdFromToken()
     {
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-        
+
         if (userRole == "Funcionario")
         {
             var funcionarioIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -32,7 +32,7 @@ public class FuncionariosController : ControllerBase
                 return funcionarioId;
             }
         }
-        
+
         return null;
     }
 
@@ -47,7 +47,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> GetPerfil()
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -56,7 +56,7 @@ public class FuncionariosController : ControllerBase
         var funcionario = await _context.Funcionarios
             .Include(f => f.Clinica)
             .FirstOrDefaultAsync(f => f.Id == funcionarioId.Value);
-        
+
         if (funcionario == null)
         {
             return NotFound(new { message = "Funcionário não encontrado" });
@@ -93,7 +93,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> UpdatePerfil([FromBody] UpdatePerfilFuncionarioModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -101,7 +101,7 @@ public class FuncionariosController : ControllerBase
 
         var funcionario = await _context.Funcionarios
             .FirstOrDefaultAsync(f => f.Id == funcionarioId.Value);
-        
+
         if (funcionario == null)
         {
             return NotFound(new { message = "Funcionário não encontrado" });
@@ -109,13 +109,13 @@ public class FuncionariosController : ControllerBase
 
         // Atualiza telefone
         funcionario.Telefone = model.Telefone;
-        
+
         // Atualiza password se fornecida
         if (!string.IsNullOrEmpty(model.Password))
         {
             funcionario.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
         }
-        
+
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Perfil atualizado com sucesso" });
@@ -132,7 +132,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> AdicionarStock(int produtoId, [FromBody] AdicionarStockModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -148,7 +148,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.Id, f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -157,7 +157,7 @@ public class FuncionariosController : ControllerBase
         // Buscar produto primeiro para validação explícita
         var produto = await _context.Produtos
             .FirstOrDefaultAsync(p => p.Id == produtoId);
-        
+
         if (produto == null)
         {
             return NotFound(new { message = "Produto não encontrado" });
@@ -175,8 +175,8 @@ public class FuncionariosController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(new 
-        { 
+        return Ok(new
+        {
             message = "Stock adicionado com sucesso",
             produtoId = produto.Id,
             produtoNome = produto.Nome,
@@ -198,7 +198,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> CreateCliente([FromBody] CreateClienteModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -208,7 +208,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -227,7 +227,7 @@ public class FuncionariosController : ControllerBase
         _context.Clientes.Add(novoCliente);
         await _context.SaveChangesAsync();
 
-        return Ok(new 
+        return Ok(new
         {
             message = "Cliente criado com sucesso",
             id = novoCliente.Id,
@@ -245,7 +245,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> GetClientes([FromQuery] bool incluirInativos = false)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -255,19 +255,19 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
         }
 
         var query = _context.Clientes.Where(c => c.ClinicaId == funcionario.ClinicaId);
-        
+
         if (!incluirInativos)
         {
             query = query.Where(c => c.Ativo);
         }
-        
+
         var clientes = await query
             .Select(c => new
             {
@@ -293,7 +293,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> GetCliente(int clienteId)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -303,7 +303,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -311,7 +311,7 @@ public class FuncionariosController : ControllerBase
 
         var cliente = await _context.Clientes
             .FirstOrDefaultAsync(c => c.Id == clienteId);
-        
+
         if (cliente == null)
         {
             return NotFound(new { message = "Cliente não encontrado" });
@@ -343,7 +343,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> UpdateCliente(int clienteId, [FromBody] UpdateClienteModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -353,7 +353,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -361,7 +361,7 @@ public class FuncionariosController : ControllerBase
 
         var cliente = await _context.Clientes
             .FirstOrDefaultAsync(c => c.Id == clienteId);
-        
+
         if (cliente == null)
         {
             return NotFound(new { message = "Cliente não encontrado" });
@@ -392,7 +392,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> UpdateAtivoCliente(int clienteId, [FromBody] UpdateAtivoClienteModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -402,7 +402,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -410,7 +410,7 @@ public class FuncionariosController : ControllerBase
 
         var cliente = await _context.Clientes
             .FirstOrDefaultAsync(c => c.Id == clienteId);
-        
+
         if (cliente == null)
         {
             return NotFound(new { message = "Cliente não encontrado" });
@@ -438,7 +438,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> CreateAnimal([FromBody] CreateAnimalModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -448,7 +448,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -457,7 +457,7 @@ public class FuncionariosController : ControllerBase
         // Verificar se o cliente existe e pertence à mesma clínica
         var cliente = await _context.Clientes
             .FirstOrDefaultAsync(c => c.Id == model.IdCliente);
-        
+
         if (cliente == null)
         {
             return NotFound(new { message = "Cliente não encontrado" });
@@ -473,7 +473,7 @@ public class FuncionariosController : ControllerBase
         {
             var transponderExiste = await _context.Animais
                 .AnyAsync(a => a.Transponder == model.Transponder);
-            
+
             if (transponderExiste)
             {
                 return BadRequest(new { message = "Transponder já está em uso" });
@@ -495,7 +495,7 @@ public class FuncionariosController : ControllerBase
         _context.Animais.Add(novoAnimal);
         await _context.SaveChangesAsync();
 
-        return Ok(new 
+        return Ok(new
         {
             message = "Animal criado com sucesso",
             id = novoAnimal.Id,
@@ -513,7 +513,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> GetAnimais([FromQuery] bool incluirInativos = false)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -523,7 +523,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -532,12 +532,12 @@ public class FuncionariosController : ControllerBase
         var query = _context.Animais
             .Include(a => a.Cliente)
             .Where(a => a.IdClinica == funcionario.ClinicaId);
-        
+
         if (!incluirInativos)
         {
             query = query.Where(a => a.Ativo);
         }
-        
+
         var animais = await query
             .Select(a => new
             {
@@ -566,7 +566,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> GetAnimal(int animalId)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -576,7 +576,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -585,7 +585,7 @@ public class FuncionariosController : ControllerBase
         var animal = await _context.Animais
             .Include(a => a.Cliente)
             .FirstOrDefaultAsync(a => a.Id == animalId);
-        
+
         if (animal == null)
         {
             return NotFound(new { message = "Animal não encontrado" });
@@ -620,7 +620,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> UpdateAnimal(int animalId, [FromBody] UpdateAnimalModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -630,7 +630,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -638,7 +638,7 @@ public class FuncionariosController : ControllerBase
 
         var animal = await _context.Animais
             .FirstOrDefaultAsync(a => a.Id == animalId);
-        
+
         if (animal == null)
         {
             return NotFound(new { message = "Animal não encontrado" });
@@ -652,7 +652,7 @@ public class FuncionariosController : ControllerBase
         // Verificar se o cliente existe e pertence à mesma clínica
         var cliente = await _context.Clientes
             .FirstOrDefaultAsync(c => c.Id == model.IdCliente);
-        
+
         if (cliente == null)
         {
             return NotFound(new { message = "Cliente não encontrado" });
@@ -668,7 +668,7 @@ public class FuncionariosController : ControllerBase
         {
             var transponderExiste = await _context.Animais
                 .AnyAsync(a => a.Transponder == model.Transponder && a.Id != animalId);
-            
+
             if (transponderExiste)
             {
                 return BadRequest(new { message = "Transponder já está em uso" });
@@ -697,7 +697,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> DeleteAnimal(int animalId)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -707,7 +707,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -715,7 +715,7 @@ public class FuncionariosController : ControllerBase
 
         var animal = await _context.Animais
             .FirstOrDefaultAsync(a => a.Id == animalId);
-        
+
         if (animal == null)
         {
             return NotFound(new { message = "Animal não encontrado" });
@@ -742,7 +742,7 @@ public class FuncionariosController : ControllerBase
     public async Task<IActionResult> UpdateAtivoAnimal(int animalId, [FromBody] UpdateAtivoAnimalModel model)
     {
         var funcionarioId = GetFuncionarioIdFromToken();
-        
+
         if (funcionarioId == null)
         {
             return Unauthorized(new { message = "Token inválido" });
@@ -752,7 +752,7 @@ public class FuncionariosController : ControllerBase
             .Where(f => f.Id == funcionarioId.Value)
             .Select(f => new { f.ClinicaId })
             .FirstOrDefaultAsync();
-        
+
         if (funcionario == null)
         {
             return Unauthorized(new { message = "Funcionário não encontrado" });
@@ -760,7 +760,7 @@ public class FuncionariosController : ControllerBase
 
         var animal = await _context.Animais
             .FirstOrDefaultAsync(a => a.Id == animalId);
-        
+
         if (animal == null)
         {
             return NotFound(new { message = "Animal não encontrado" });
@@ -776,6 +776,67 @@ public class FuncionariosController : ControllerBase
 
         return Ok(new { message = $"Animal {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = animal.Ativo });
     }
+
+    [Authorize(Roles = "Funcionario")]
+    [HttpPost("relatorios")]
+    [SwaggerOperation(
+        Summary = "Registar animal",
+        Description = "Metodo para criar um relatorio para um animal da clinica"
+    )]
+    public async Task<IActionResult> CreateRelatorio([FromBody] CreateRelatorioModel model)
+    {
+        var funcionarioId = GetFuncionarioIdFromToken();
+
+        if (funcionarioId == null)
+        {
+            return Unauthorized(new { message = "Token inválido" });
+        }
+
+        var funcionario = await _context.Funcionarios
+            .Where(f => f.Id == funcionarioId.Value)
+            .Select(f => new { f.ClinicaId })
+            .FirstOrDefaultAsync();
+
+        if (funcionario == null)
+        {
+            return Unauthorized(new { message = "Funcionário não encontrado" });
+        }
+
+        // Verificar se o cliente existe e pertence à mesma clínica
+        var animal = await _context.Animais
+            .FirstOrDefaultAsync(c => c.Id == model.IdAnimal);
+
+        if (animal == null)
+        {
+            return NotFound(new { message = "Cliente não encontrado" });
+        }
+
+        if (animal.IdClinica != funcionario.ClinicaId)
+        {
+            return BadRequest(new { message = "Cliente não pertence a esta clínica" });
+        }
+
+        var novoRelatorio = new Relatorio
+        {
+            Titulo = model.Titulo,
+            Motivo = model.Motivo,
+            DiagnosticoPresuntivo = model.DiagnosticoPresuntivo,
+            DiagnosticoDefinitivo = model.DiagnosticoDefinitivo,
+            Observacoes = model.Observacoes,
+            DataConsulta = model.DataConsulta,
+            IdAnimal = model.IdAnimal,
+            IdClinica = funcionario.ClinicaId
+        };
+
+        _context.Relatorios.Add(novoRelatorio);          // ← ADICIONA à BD
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Relatorio registado com sucesso",
+        });
+    }
+
 }
 
 // Model para adicionar stock ao produto
@@ -807,6 +868,20 @@ public class UpdateAtivoClienteModel
 {
     public bool Ativo { get; set; }
 }
+
+// model para relatorio
+public class CreateRelatorioModel
+{
+    public string Titulo { get; set; } = string.Empty;
+    public string Motivo { get; set; } = string.Empty;
+    public string? DiagnosticoPresuntivo { get; set; }
+    public string? DiagnosticoDefinitivo { get; set; }
+    public string Observacoes { get; set; } = string.Empty;
+    public DateOnly DataConsulta { get; set; }
+    public int IdAnimal { get; set; }
+    public int IdClinica { get; set; }
+}
+
 
 // Models para Animais
 public class CreateAnimalModel
