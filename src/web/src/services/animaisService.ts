@@ -1,19 +1,8 @@
 import { authService } from './authService';
+import type { Animal } 
+  from '@/types/animais';
 
 const API_URL = 'http://localhost:5000/api';
-
-export interface Animal {
-  id?: number;
-  transponder?: string;
-  nome: string;
-  especie?: string;
-  raca?: string;
-  data_nascimento?: string;
-  sexo?: string;
-  id_cliente: number | null;
-  id_clinica: number;
-  ativo?: boolean;
-}
 
 export const animaisService = {
   // GET /api/clientes - Listar todos

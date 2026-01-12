@@ -273,31 +273,6 @@ onMounted(() => {
           Nenhum produto encontrado.
         </div>
       </div>
-
-      <!-- Kanban por nível de stock -->
-      <div class="text-subtitle1 q-mb-sm">
-        Visão por nível de stock
-      </div>
-      <div class="row no-wrap kanban-scroll q-pb-xl">
-        <div v-for="col in colunas" :key="col.id" class="kanban-column column">
-          <div class="text-subtitle2 q-mb-sm">{{ col.label }}</div>
-          <q-card v-for="p in produtosPorColuna[col.id]" :key="p.id" class="q-mb-sm">
-            <q-card-section class="q-pb-xs">
-              <div class="text-body2">{{ p.nome }}</div>
-              <div class="text-caption text-grey-7">
-                Stock: {{ p.quantidadeStock }}
-              </div>
-            </q-card-section>
-            <q-card-section class="q-pt-none">
-              <q-linear-progress :value="Math.min(
-                1,
-                (p.quantidadeStock || 0) / stockMaximo(p)
-              )
-                " :color="getStockColor(p)" track-color="grey-3" rounded size="6px" />
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
     </div>
 
     <!-- Dialog de movimentos -->
@@ -328,15 +303,3 @@ onMounted(() => {
     </q-dialog>
   </q-page>
 </template>
-
-<style scoped>
-.kanban-scroll {
-  overflow-x: auto;
-}
-
-.kanban-column {
-  min-width: 220px;
-  max-width: 260px;
-  margin-right: 16px;
-}
-</style>

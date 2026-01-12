@@ -44,12 +44,6 @@ const routes = [
     component: () => import('../views/LoginView.vue')
   },
   {
-    path: '/avaliar',
-    name: 'avaliar',
-    component: () => import('../views/AvaliacaoView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/conta',
     name: 'conta',
     component: () => import('../views/AccountView.vue'),
