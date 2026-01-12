@@ -197,7 +197,7 @@ onMounted(() => {
         <template v-slot:no-data>
           <div class="full-width row flex-center text-grey-7 q-gutter-sm q-pa-lg">
             <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span>Nenhum cliente encontrado</span>
+            <span>Nenhum animal encontrado</span>
           </div>
         </template>
       </q-table>
