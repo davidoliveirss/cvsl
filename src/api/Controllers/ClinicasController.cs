@@ -761,7 +761,7 @@ public class ClinicasController : ControllerBase
         return Ok(new { message = $"Produto {(model.Ativo ? "ativado" : "desativado")} com sucesso", ativo = produto.Ativo });
     }
 
-    [Authorize(Roles = "Funcionario")]
+    [Authorize(Roles = "Clinica")]
     [HttpGet("animais")]
     [SwaggerOperation(
         Summary = "Listar animais",
