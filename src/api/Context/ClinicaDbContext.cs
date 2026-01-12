@@ -13,6 +13,8 @@ public class ClinicaDbContext : DbContext
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Produto> Produtos { get; set; }
     public DbSet<Animal> Animais { get; set; }
+    public DbSet<Relatorio> Relatorios { get; set; }
+
 
     private readonly IConfiguration _config;
 
