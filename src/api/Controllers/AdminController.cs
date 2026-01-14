@@ -175,6 +175,46 @@ public class AdminController : ControllerBase
         });
     }
 
+    [HttpPut("gostodepau")] //alterar informacoes clinica
+    [SwaggerOperation(
+        Summary = "Atualizar clinicas",
+        Description = "Metodo para atualizar clinicas"
+    )]
+    public async Task<IActionResult> updatepau(int id, [FromBody] ClinicaUpdateDto dto)
+    {
+        var clinica = await _context.Clinicas.FindAsync(id);
+        if (clinica == null)
+            return NotFound(new { message = "Clínica não encontrada" });
+
+        // Verificar se email já existe em outra clínica
+        if (await _context.Clinicas.AnyAsync(c => c.Email == dto.Email && c.Id != id))
+            return BadRequest(new { message = "Email já está em uso" });
+
+        clinica.Nome = dto.Nome;
+        clinica.Email = dto.Email;
+        clinica.Cp = dto.Cp;
+        clinica.Nif = dto.Nif;
+        clinica.Iban = dto.Iban;
+
+        // Só atualizar password se fornecida
+        if (!string.IsNullOrEmpty(dto.Password))
+        {
+            clinica.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            clinica.Id,
+            clinica.Nome,
+            clinica.Email,
+            clinica.Cp,
+            clinica.Nif,
+            clinica.Iban
+        });
+    }
+
     // ========== ESTATÍSTICAS GLOBAIS ==========
 
     [HttpGet("dashboard/stats")]

@@ -134,6 +134,15 @@ const handleLogout = () => {
           </q-item-section>
         </q-item>
 
+        <q-item clickable v-ripple @click="router.push('/relatorios')">
+          <q-item-section avatar>
+            <q-icon name="note_alt" color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Relatórios</q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-item clickable v-ripple @click="router.push('/consultas')">
           <q-item-section avatar>
             <q-icon name="event" color="white" />

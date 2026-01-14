@@ -69,8 +69,7 @@ export const produtosService = {
     return response.json();
   },
 
-  // PUT /api/clientes/:id - Atualizar
-  async update(id: number, cliente: Produto): Promise<Produto> {
+  async update(id: number, produto: Produto): Promise<Produto> {
     const userType = authService.getUserType();
   
     if (!userType) {
@@ -78,8 +77,8 @@ export const produtosService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': `/Clinicas/clientes/${id}`, 
-      'funcionario': `/Funcionarios/clientes/${id}`,
+      'clinica': `/Clinicas/produtos/${id}`, 
+      'funcionario': `/Funcionarios/produtos/${id}`,
     };
 
     const endpoint = endpointMap[userType] || `/clientes/${id}`;
@@ -87,7 +86,7 @@ export const produtosService = {
 
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'PUT',
-      body: JSON.stringify({ ...cliente, id })
+      body: JSON.stringify({ ...produto, id })
     });
     
     if (!response.ok) {
@@ -106,11 +105,11 @@ export const produtosService = {
     }
 
     const endpointMap: Record<string, string> = {
-      'clinica': `/Clinicas/clientes/${id}`, 
-      'funcionario': `/Funcionarios/clientes/${id}`,
+      'clinica': `/Clinicas/produtos/${id}/ativo`, 
+      'funcionario': `/Funcionarios/produtos/${id}/ativo`,
     };
 
-    const endpoint = endpointMap[userType] || `/clientes/${id}`;
+    const endpoint = endpointMap[userType] || `/clientes/${id}/ativo`;
 
     const response = await authService.fetchWithAuth(endpoint, {
       method: 'PATCH',

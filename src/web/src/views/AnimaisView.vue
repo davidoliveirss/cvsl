@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { animaisService, type Animal } from '@/services/animaisService';
+import { animaisService } from '@/services/animaisService';
 import { clientesService } from '@/services/clientesService';
 import { authService } from '@/services/authService';
 import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
+import type { Animal } from '@/types/animais';
 
 const $q = useQuasar();
 
@@ -177,7 +178,7 @@ onMounted(() => {
         </div>
         <div class="col-auto row items-center q-gutter-md">
           <q-toggle v-model="incluirInativos" label="Mostrar inativos" @update:model-value="loadAnimais" />
-          <q-btn v-if="isFuncionario" color="primary" label="Novo Cliente" icon="add" @click="openNewDialog" />
+          <q-btn v-if="isFuncionario" color="primary" label="Novo Animal" icon="add" @click="openNewDialog" />
         </div>
       </div>
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { funcionariosService, type Funcionario } from '@/services/funcionariosService';
+import { funcionariosService } from '@/services/funcionariosService';
 import { authService } from '@/services/authService';
 import { fasBedPulse } from '@quasar/extras/fontawesome-v6';
+import type { Funcionario } from '@/types/funcionarios';
+
 
 const $q = useQuasar();
 

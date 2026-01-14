@@ -42,9 +42,9 @@ const formData = ref<Produto>({
 
 
 const columns = [
-  { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const ,sortable: true},
+  { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
   { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left' as const, sortable: true },
-  { name: 'preco', label: 'Preço', field: 'preco', align: 'right' as const, format: (val: any) => `${val} €`},
+  { name: 'preco', label: 'Preço', field: 'preco', align: 'right' as const, format: (val: any) => `${val} €` },
   { name: 'stock', label: 'Stock', field: 'quantidadeStock', align: 'center' as const },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' as const },
   { name: 'actions', label: 'Ações', field: 'id', align: 'center' as const }
@@ -81,7 +81,7 @@ function openNewDialog() {
 
 function openEditDialog(produto: Produto) {
   editMode.value = true;
-  formData.value = { ...produto};
+  formData.value = { ...produto };
   dialog.value = true;
 }
 
@@ -91,13 +91,13 @@ async function saveProduto() {
       await produtosService.update(formData.value.id, formData.value);
       $q.notify({
         type: 'positive',
-        message: 'Cliente atualizado com sucesso!'
+        message: 'Produto atualizado com sucesso!'
       });
     } else {
       await produtosService.create(formData.value);
       $q.notify({
         type: 'positive',
-        message: 'Cliente criado com sucesso!'
+        message: 'Produto registado com sucesso!'
       });
     }
 
@@ -106,7 +106,7 @@ async function saveProduto() {
   } catch (error: any) {
     $q.notify({
       type: 'negative',
-      message: error.message || 'Erro ao salvar cliente'
+      message: error.message || 'Erro ao registar produto'
     });
   }
 }
@@ -138,13 +138,13 @@ async function toggleEstadoCliente(animal: Produto) {
 
       $q.notify({
         type: 'positive',
-        message: `Cliente ${novoEstado ? 'ativado' : 'desativado'} com sucesso!`
+        message: `Produto ${novoEstado ? 'ativado' : 'desativado'} com sucesso!`
       });
       await loadProdutos();
     } catch (error: any) {
       $q.notify({
         type: 'negative',
-        message: error.message || 'Erro ao alterar estado do cliente'
+        message: error.message || 'Erro ao alterar estado do produto'
       });
     }
   });
@@ -174,22 +174,22 @@ onMounted(() => {
       <q-table :rows="produtos" :columns="columns" row-key="id" :loading="loading" flat bordered>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn v-if="isFuncionario" flat round dense color="primary" icon="edit" @click="openEditDialog(props.row)">
+            <q-btn v-if="!isFuncionario" flat round dense color="primary" icon="edit" @click="openEditDialog(props.row)">
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
+
             <q-btn flat round dense :color="props.row.ativo ? 'negative' : 'positive'"
               :icon="props.row.ativo ? 'block' : 'check_circle'" @click="toggleEstadoCliente(props.row)">
               <q-tooltip>{{ props.row.ativo ? 'Desativar' : 'Ativar' }}</q-tooltip>
             </q-btn>
           </q-td>
+
         </template>
 
         <template v-slot:body-cell-ativo="props">
           <q-td :props="props">
-            <q-badge 
-              :color="props.row.ativo ? 'positive' : 'negative'"
-              :label="props.row.ativo ? 'Ativo' : 'Inativo'"
-            />
+            <q-badge :color="props.row.ativo ? 'positive' : 'negative'"
+              :label="props.row.ativo ? 'Ativo' : 'Inativo'" />
           </q-td>
         </template>
 
@@ -217,7 +217,7 @@ onMounted(() => {
 
           <q-input v-model="formData.idCategoria" label="Categoria" outlined dense class="q-mt-md" />
 
-          <q-input v-model="formData.preco" label="Preço" outlined dense class="q-mt-md" suffix="€"/>
+          <q-input v-model="formData.preco" label="Preço" outlined dense class="q-mt-md" suffix="€" />
 
           <q-input v-model="formData.unidadesPorCaixa" label="Unidades por caixa" outlined dense type="number"
             class="q-mt-md" />
@@ -229,8 +229,7 @@ onMounted(() => {
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
-          <q-btn unelevated label="Salvar" color="primary" @click="saveProduto"
-            :disable="!formData.nome"/>
+          <q-btn unelevated label="Salvar" color="primary" @click="saveProduto" :disable="!formData.nome" />
         </q-card-actions>
       </q-card>
     </q-dialog>

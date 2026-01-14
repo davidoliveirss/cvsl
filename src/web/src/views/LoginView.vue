@@ -67,102 +67,55 @@ async function onLogin() {
                         <!-- Seletor de tipo de utilizador -->
                         <div class="q-mb-lg">
                             <div class="text-subtitle2 text-grey-8 q-mb-sm text-weight-medium">Entrar como:</div>
-                            <q-btn-toggle
-                                v-model="userType"
-                                spread
-                                no-caps
-                                rounded
-                                unelevated
-                                toggle-color="primary"
-                                color="grey-3"
-                                text-color="grey-9"
-                                style="border: 2px solid #357870;"
-                                :options="[
+                            <q-btn-toggle v-model="userType" spread no-caps rounded unelevated toggle-color="primary"
+                                color="grey-3" text-color="grey-9" style="border: 2px solid #357870;" :options="[
                                     { label: '🏥 Clínica', value: 'clinica' },
                                     { label: '👨‍⚕️ Funcionário', value: 'funcionario' }
-                                ]"
-                            />
+                                ]" />
                         </div>
 
                         <!-- Credenciais de teste -->
-                        <q-banner 
-                            v-if="userType === 'clinica'" 
-                            dense 
-                            rounded 
-                            class="q-mb-lg"
-                            style="background-color: #e8f5f3; border-left: 4px solid #357870;"
-                        >
+                        <q-banner v-if="userType === 'clinica'" dense rounded class="q-mb-lg"
+                            style="background-color: #e8f5f3; border-left: 4px solid #357870;">
                             <template v-slot:avatar>
                                 <q-icon name="info" style="color: #357870;" />
                             </template>
                             <div class="text-caption" style="color: #2a5f5a;">
-                                <strong>Teste:</strong> clinica@teste.pt / teste123
+                                <strong>Teste:</strong> clinica@cvsl.pt / teste123
                             </div>
                         </q-banner>
 
-                        <q-banner 
-                            v-else 
-                            dense 
-                            rounded 
-                            class="q-mb-lg"
-                            style="background-color: #e8f5f3; border-left: 4px solid #357870;"
-                        >
+                        <q-banner v-else dense rounded class="q-mb-lg"
+                            style="background-color: #e8f5f3; border-left: 4px solid #357870;">
                             <template v-slot:avatar>
                                 <q-icon name="info" style="color: #357870;" />
                             </template>
                             <div class="text-caption" style="color: #2a5f5a;">
-                                <strong>Veterinário:</strong> vet@teste.pt / teste123<br>
-                                <strong>Rececionista:</strong> rececionista@teste.pt / teste123
+                                <strong>Veterinário:</strong> joao.silva@cvsl.pt / teste123
                             </div>
                         </q-banner>
 
                         <!-- Formulário -->
-                        <q-input 
-                            rounded 
-                            outlined 
-                            v-model="email" 
-                            label="Email"
-                            type="email"
-                            bg-color="grey-1"
-                            color="primary"
-                            @keyup.enter="onLogin"
-                            :rules="[val => !!val || 'Email é obrigatório']"
-                            class="q-mb-md"
-                        >
+                        <q-input rounded outlined v-model="email" label="Email" type="email" bg-color="grey-1"
+                            color="primary" @keyup.enter="onLogin" :rules="[val => !!val || 'Email é obrigatório']"
+                            class="q-mb-md">
                             <template v-slot:prepend>
                                 <q-icon name="email" style="color: #357870;" />
                             </template>
                         </q-input>
 
-                        <q-input 
-                            rounded 
-                            outlined 
-                            v-model="password" 
-                            label="Password"
-                            type="password"
-                            bg-color="grey-1"
-                            color="primary"
-                            @keyup.enter="onLogin"
-                            :rules="[val => !!val || 'Password é obrigatória']"
-                            class="q-mb-lg"
-                        >
+                        <q-input rounded outlined v-model="password" label="Password" type="password" bg-color="grey-1"
+                            color="primary" @keyup.enter="onLogin" :rules="[val => !!val || 'Password é obrigatória']"
+                            class="q-mb-lg">
                             <template v-slot:prepend>
                                 <q-icon name="lock" style="color: #357870;" />
                             </template>
                         </q-input>
 
                         <!-- Botão de Login -->
-                        <q-btn 
-                            unelevated
-                            rounded
-                            label="Entrar" 
-                            class="full-width"
-                            size="lg"
-                            style="background-color: #357870; color: white;"
-                            @click="onLogin"
-                            :loading="authStore.isLoading"
-                            :disable="!email || !password"
-                        />
+                        <q-btn unelevated rounded label="Entrar" class="full-width" size="lg"
+                            style="background-color: #357870; color: white;" @click="onLogin"
+                            :loading="authStore.isLoading" :disable="!email || !password" />
                     </q-card-section>
 
                     <!-- Footer -->

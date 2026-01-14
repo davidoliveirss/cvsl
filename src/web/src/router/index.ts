@@ -55,6 +55,12 @@ const routes = [
     component: () => import('../views/StatusView.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/relatorios',
+    name: 'test',
+    component: () => import('../views/RelatoriosView.vue'),
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = createRouter({
